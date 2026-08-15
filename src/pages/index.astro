@@ -1,37 +1,235 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/Container.astro';
+import Grid from '../components/Grid.astro';
+import Media from '../components/Media.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import Section from '../components/Section.astro';
 import VerticalRule from '../components/VerticalRule.astro';
+import {
+  facetsOf,
+  getFeaturedProjects,
+  getProjects,
+  totalAreaOf,
+} from '../lib/projects';
 
 /*
-  Placeholder. The real home page is step 5 in work.md — this exists so the
-  design system has somewhere to be seen in situ, and it uses only step 2's
-  primitives inside step 4b's chrome.
+  The home page: first screen, selected work, an about teaser and a contact
+  band (docs/BRIEF.md §3). Built entirely from step 2's primitives — the only
+  new pieces are `ProjectCard`, which /work reuses, and two component classes
+  in global.css.
+
+  Nothing here writes its own tween. Motion is the data attributes documented
+  on /styleguide, which is what keeps reduced-motion handling from being
+  forgotten at a call site.
 */
+
+const projects = await getProjects();
+const featured = await getFeaturedProjects();
+const facets = facetsOf(projects);
+
+/*
+  The first screen's image.
+
+  Named by slug and read back through the collection rather than imported from
+  src/assets, so it keeps the alt text written alongside it and swaps with the
+  rest of that project's images when Lea's originals land (open item 1).
+
+  3B apartment is deliberately *not* one of the featured six: at 1314px this is
+  the largest and sharpest crop on the site, and showing the same photograph
+  again in a card one screen later is repetition rather than emphasis.
+*/
+const LEAD = '3b-apartment';
+const lead = projects.find((project) => project.id === LEAD);
+if (!lead?.data.hero) {
+  throw new Error(`home page: no hero image on "${LEAD}" to lead with`);
+}
+const leadImage = lead.data.hero;
+
+// Derived, never stated: a figure that can't fall out of step with the data.
+const totalArea = totalAreaOf(projects).toLocaleString('en-GB');
 ---
 
-<BaseLayout title="Lea Kassem — Interior Architect">
-  <div class="first-screen flex p-4 md:p-8">
-    <div class="bg-paper flex flex-1">
-      <div class="flex flex-1 gap-6 p-8 md:gap-10 md:p-16">
+<BaseLayout
+  title="Lea Kassem — Interior Architect"
+  description="Residential interiors across the UAE, Qatar and Lebanon — the portfolio of Lea Kassem, senior interior architect."
+>
+  <!-- ------------------------------------------------------- first screen -->
+  <!--
+    Her cover sheet, rearranged for a screen: the name set very large, PORTFOLIO
+    vertical alongside the rule, and one interior photograph — all on a white
+    card floating on the warm grey ground.
+
+    The photograph is a band across the foot of the card rather than a column
+    beside the name, because the crops are 2:1 and about 1300px at their widest
+    (open item 1). A column beside the text is portrait-shaped, and filling one
+    means `cover` scaling a 2:1 crop up by roughly 2× — the soft hero
+    docs/BRIEF.md §6 says to design around rather than into. Across the card it
+    lands at its native width and is cropped where it has pixels to spare.
+
+    It is `parallax` rather than a scale-in: it is on screen before any
+    scrolling happens, so there is no entrance to play. Media turns the reveal
+    off for it automatically.
+
+    `min-w-0` on the card and its children because a flex item and a grid item
+    both default to `min-width: auto`, refusing to shrink below their content.
+    The heading is that content: SplitText sets every line it makes to
+    `white-space: nowrap`, and one un-shrinkable line was dragging the whole
+    card 37px past the space it had.
+  -->
+  <div class="first-screen p-gutter flex">
+    <div
+      class="bg-paper grid min-w-0 flex-1 grid-rows-[1fr_auto] overflow-hidden lg:grid-rows-[auto_minmax(12rem,1fr)]"
+    >
+      <div class="gap-gutter flex min-w-0 p-8 lg:p-12">
         <VerticalRule label="Portfolio" align="bottom" />
 
-        <div class="flex flex-1 flex-col justify-end">
-          <h1 class="font-display text-display" data-reveal="heading">
-            Lea Kassem
-          </h1>
+        <!--
+          Name and standfirst sit side by side once there is room, both resting
+          on the same bottom edge. Stacked, they would leave the right half of
+          a wide first screen empty and squeeze the photograph into a strip.
+        -->
+        <div
+          class="gap-block flex min-w-0 flex-1 flex-col justify-end lg:flex-row lg:items-end lg:justify-between"
+        >
+          <div class="min-w-0">
+            <h1 class="font-display text-display" data-reveal="heading">
+              Lea Kassem
+            </h1>
 
-          <p class="label text-muted mt-6" data-reveal>Interior Architect</p>
+            <p class="label text-muted mt-6" data-reveal>Interior Architect</p>
+          </div>
 
-          <p class="text-small text-muted max-w-narrow mt-16" data-reveal>
-            Placeholder page — the home page is built in step 5. The projects
-            are in the nav above, and the design system everything is built
-            from is at <a
-              href="/styleguide"
-              class="hover:text-ink underline underline-offset-4">/styleguide</a
-            >, which is internal and goes unlinked once this page is real.
-          </p>
+          <div class="max-w-narrow min-w-0">
+            <p class="text-subhead text-muted" data-reveal>
+              Residential interiors across the UAE, Qatar and Lebanon — concept
+              design and technical drawings through to delivery on site.
+            </p>
+
+            <a href="#work" class="link-rule mt-8" data-reveal>Selected work</a>
+          </div>
         </div>
+      </div>
+
+      <!--
+        The wrapper owns this box: 3:2 while the card is stacked short, and the
+        height the text row leaves once there is a screen to fill. Media's own
+        `aspect-ratio` is deliberately inert here — given a height and an auto
+        width it resolves the *width* from the height, which is how a 708px
+        card once made this image 1062px wide inside a 766px slot.
+      -->
+      <!--
+        `lg:min-h-0` is what keeps the card to one screen. A `1fr` row's
+        automatic minimum is its content's min-content height, and the image
+        still has an intrinsic 2:1 height to offer — so the row sized itself to
+        the whole photograph and pushed the card 371px past the viewport. At a
+        minimum of zero the row takes what the text leaves, and the image is
+        cropped to it.
+      -->
+      <div class="aspect-[3/2] min-w-0 lg:aspect-auto lg:min-h-0">
+        <Media
+          src={leadImage.src}
+          alt={leadImage.alt}
+          sizes="100vw"
+          priority
+          parallax={6}
+          class="h-full w-full"
+        />
       </div>
     </div>
   </div>
+
+  <!-- ------------------------------------------------------ selected work -->
+  <Section id="work" tone="ground" label="Work" divider>
+    <Container>
+      <div class="gap-block flex flex-wrap items-end justify-between">
+        <div>
+          <p class="label text-muted" data-reveal>
+            {featured.length} of {projects.length} projects
+          </p>
+          <h2 class="font-display text-headline mt-4" data-reveal="heading">
+            Selected work
+          </h2>
+        </div>
+
+        <a href="/work" class="link-rule" data-reveal>All work</a>
+      </div>
+
+      <Grid cols={2} gap="wide" stagger class="mt-section">
+        {
+          featured.map((project) => (
+            <ProjectCard
+              project={project}
+              sizes="(min-width: 1024px) 38rem, (min-width: 640px) 45vw, 100vw"
+              reveal={false}
+            />
+          ))
+        }
+      </Grid>
+    </Container>
+  </Section>
+
+  <!-- -------------------------------------------------------------- about -->
+  <Section tone="paper" label="About" divider>
+    <Container>
+      <Grid cols={12} gap="default">
+        <h2
+          class="font-display text-headline col-span-4 md:col-span-5"
+          data-reveal="heading"
+        >
+          Concept design through to site delivery
+        </h2>
+
+        <div class="col-span-4 md:col-span-6 md:col-start-7">
+          <p class="text-subhead max-w-text" data-reveal>
+            Lea Kassem is a senior interior architect based in Beirut, working
+            on residential interiors across the UAE, Qatar and Lebanon. She runs
+            five or more concurrent projects end to end — concept design,
+            technical documentation, FF&amp;E specification, procurement and
+            budget control — coordinating contractors, joinery, electrical and
+            mechanical teams through to delivery on site.
+          </p>
+
+          <a href="/about" class="link-rule mt-block" data-reveal>About Lea</a>
+        </div>
+      </Grid>
+
+      <!-- Counted from the project data at build time, so no figure here can
+           contradict the work index. -->
+      <Grid cols={3} gap="default" stagger class="mt-section">
+        <div class="border-hairline-soft border-t pt-5">
+          <p class="font-display text-headline">{projects.length}</p>
+          <p class="label text-muted mt-3">Projects</p>
+        </div>
+        <div class="border-hairline-soft border-t pt-5">
+          <p class="font-display text-headline">{facets.location.length}</p>
+          <p class="label text-muted mt-3">Countries</p>
+        </div>
+        <div class="border-hairline-soft border-t pt-5">
+          <p class="font-display text-headline">{totalArea}</p>
+          <p class="label text-muted mt-3">Square metres designed</p>
+        </div>
+      </Grid>
+    </Container>
+  </Section>
+
+  <!-- ------------------------------------------------------------ contact -->
+  <!-- Email only, and the address itself is step 8's — assembled in JS, never
+       plain text in the HTML. This band links to the route. -->
+  <Section tone="ground" label="Contact" divider>
+    <Container>
+      <div class="gap-block flex flex-wrap items-end justify-between">
+        <div>
+          <h2 class="font-display text-headline" data-reveal="heading">
+            Get in touch
+          </h2>
+          <p class="text-subhead text-muted max-w-text mt-6" data-reveal>
+            Project enquiries are welcome by email.
+          </p>
+        </div>
+
+        <a href="/contact" class="link-rule" data-reveal>Contact</a>
+      </div>
+    </Container>
+  </Section>
 </BaseLayout>

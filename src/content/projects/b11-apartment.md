@@ -6,6 +6,7 @@ status: completed
 city: Beirut
 district: Downtown
 area: 110
+featured: true
 sections:
   - rooms: Living room & outdoor
     sheet: 17

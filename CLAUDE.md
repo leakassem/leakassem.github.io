@@ -111,6 +111,10 @@ adding anything visual, and update it when the system changes.
   `VerticalRule` (the rule and vertical label on their own). Section owns
   vertical space, Container owns horizontal — that split is what lets a band run
   full-bleed while its text stays measured.
+- **Shared pieces built on those primitives**: `ProjectCard` (how a project
+  introduces itself — home and `/work` both render it, so change it once), and
+  the component classes `.link-rule` (the site's only button-like link) and
+  `.project-card`. All three are on `/styleguide` under **Components**.
 - **Motion is opt-in by data attribute**, never a hand-written tween in a page:
 
   | Attribute | Effect |

@@ -42,9 +42,22 @@ export async function getProjects(): Promise<Project[]> {
   return projects.sort((a, b) => sheetsOf(a)[0]! - sheetsOf(b)[0]!);
 }
 
-/** The home page's selected work (step 5), in portfolio order. */
+/** The home page's selected work, in portfolio order. */
 export async function getFeaturedProjects(): Promise<Project[]> {
   return (await getProjects()).filter((project) => project.data.featured);
+}
+
+/**
+ * Where a project card links.
+ *
+ * Detail pages are step 7. Until they exist every card lands on the work index
+ * rather than a 404 — a nav link that 404s is worse than a thin page, and the
+ * site is live. This is the one line that changes when step 7 lands, which is
+ * why no page writes the href itself.
+ */
+export function hrefOf(_project: Project): string {
+  // Step 7: return `/work/${_project.id}`;
+  return '/work';
 }
 
 /* --------------------------------------------------------------- derivation */
@@ -92,6 +105,16 @@ export function areaLabel(project: Project): string | undefined {
   const area = areaOf(project);
   // Non-breaking space — "240 m²" must never wrap between number and unit.
   return area === undefined ? undefined : `${area} m²`;
+}
+
+/**
+ * Square metres across a set of projects — the sum of what the sheets state.
+ *
+ * Projects whose sheets state no area contribute nothing rather than a guess,
+ * so this is a floor and not an estimate.
+ */
+export function totalAreaOf(projects: Project[]): number {
+  return projects.reduce((total, project) => total + (areaOf(project) ?? 0), 0);
 }
 
 /** Rooms covered, one entry per sheet that names them. */

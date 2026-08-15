@@ -7,7 +7,6 @@ city: Beirut
 district: Downtown
 development: 3Beirut
 area: 230
-featured: true
 sections:
   - sheet: 18
     role:

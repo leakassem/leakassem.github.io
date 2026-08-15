@@ -12,9 +12,9 @@ To see where things stand: *"where are we"*.
 Every session updates this file before finishing, so it is always the current
 state of the project.
 
-> **Current step: 5 — Home page** (`todo`). Step 10 was pulled forward and is
-> done: the site is live at **https://leakassem.github.io** and every push to
-> `main` redeploys it. From here on, a step isn't finished until it's pushed.
+> **Current step: 6 — Work index** (`todo`). The home page is live. Step 10 was
+> pulled forward and is done: the site is at **https://leakassem.github.io** and
+> every push to `main` redeploys it. A step isn't finished until it's pushed.
 
 ---
 
@@ -60,6 +60,12 @@ state of the project.
 | 2026-08-15 | The deploy workflow is **written out, not `withastro/action`** | CI then runs the exact `npm run build` the dev machine runs, `astro check` included, so a type error or a broken image path fails the deploy instead of shipping. One less third-party action in a repo that will be pushed to rarely and reviewed even more rarely |
 | 2026-08-15 | `.gitattributes` normalises text to **LF** | Windows dev machine, Linux CI. Without it the first checkout on another machine can show every file as modified, which buries a real diff |
 | 2026-08-15 | The footer's vertical label is **the location**, not "Contact" | It's what her sheets set alongside the rule in their own footers (`docs/BRIEF.md` §2), and "Contact" repeated the page's own label back at it on `/contact` |
+| 2026-08-15 | **The featured six are re-picked on the strength of the image**, not floor area | Open item 10 flagged the original set as "picked on floor area, which is not the same as strongest", and this step had to ship a home page either way. Seeing all 17 heroes side by side settled it: out go VBM villa, 3BF apartment and Vacation house; in come AD villa, K1 villa and B11 apartment. The set also spreads better — 3 studios apiece, UAE 3 · Lebanon 2 · Qatar 1. Still Lea's call to confirm |
+| 2026-08-15 | The home page's lead photograph is **3B apartment's**, and 3B apartment is deliberately *not* featured | At 1314px it is the largest and sharpest crop on the site, so it earns the first screen. Showing the same photograph again in a card one screen later is repetition rather than emphasis, so the project leads instead of appearing twice. No caption — her cover sheet's photograph carries none either |
+| 2026-08-15 | The hero photograph is **a band across the foot of the card**, not a column beside the name | A column next to the text is portrait-shaped, and filling one made `cover` scale a 2:1 crop up by about 2× — the soft hero `docs/BRIEF.md` §6 says to design around rather than into. Across the card it renders at 1313px from a 1314px source: no upscaling at all, and the crop happens where the image has pixels to spare |
+| 2026-08-15 | `--text-display` retuned from **10vw to 7vw** | Display type is sized for the column it is set in, not for the page width. At 10vw the name's longest word alone was wider than the hero's text column, and min-content is a whole word — it does not wrap away. 7vw leaves real margin at every width, and the name is still 100px at 1440 |
+| 2026-08-15 | `.first-screen` is an **exact height from 64rem up**, a minimum below it | A `1fr` grid row can only take "whatever the text leaves" if the height it divides is definite; against a min-height it falls back to its content's own height, which pushed the hero 371px past the viewport. On a phone the minimum is still the right rule — a first screen should grow with its content rather than crop it |
+| 2026-08-15 | Project cards link to **`/work`** until step 7 exists | `hrefOf()` in `src/lib/projects.ts` is the only place that decides, so step 7 changes one line. The site is live, and a card that 404s is worse than one that lands on the index |
 
 ---
 
@@ -76,7 +82,7 @@ state of the project.
 | 7 | ~~OneDrive syncing node_modules.~~ Closed 2026-08-14: path is local, not synced. The one `EPERM` was a transient lock and hasn't recurred. | — | done |
 | 8 | **Typeface is a stand-in.** Inter Variable is the closest open-licence match to the Helvetica-like grotesque in her sheets, but it isn't it. A licensed face (Neue Haas Grotesk, Helvetica Now) would be a closer match and costs money — a decision for Lea, not a technical one. Swapping is one `@font-face` block; see `src/assets/fonts/README.md`. | nothing — deferred | open |
 | 9 | **No written copy per project.** Every project page is metadata, role bullets and images — there is no description, because the PDF has none and inventing one breaks the tone rules. Two or three factual sentences per project from Lea (the brief, the constraint, what the space had to do) would lift the detail pages considerably. The markdown body of each file is already there for it. | nothing — pages work without it | open |
-| 10 | **Which projects lead.** Six are flagged `featured: true` (DIFC apartment, VBM villa, AZ triplex, Qatar villa, 3BF apartment, Vacation house) — picked on floor area alone, which is not the same as strongest. Lea should confirm the selection and its order before step 5 ships. One `featured` flag per file to change. | Step 5 | open |
+| 10 | **Which projects lead.** Re-picked in step 5 by looking at all 17 heroes: **AD villa, DIFC apartment, K1 villa, AZ triplex, Qatar villa, B11 apartment**, in portfolio order. Chosen for the strength of the photograph and a spread of country, studio and type — not floor area, which is what the first pass used. Separately, **3B apartment leads the home page** with the site's sharpest crop and is deliberately not in the six. Lea should confirm both. One `featured` flag per file, plus `LEAD` in `src/pages/index.astro`. | nothing — the page ships | open |
 | 11 | **Which photo leads each project.** The hero is one deliberate pick per project, in `HERO` in `scripts/crop-sheets.mjs` — chosen for being a perspective render of the main space rather than by size. Lea should confirm all 17. One line each to change, then re-run the script. | nothing — heroes work | open |
 | 12 | **A studio mark is burned into one image.** 3BF apartment's bathroom (`gallery-05.jpg`) carries a small "Design in Frame" logo in the pixels. Unlike the DIFC watermark there's no clean twin to fall back on, and it's the studio she did the work for, so it reads as a credit rather than a mistake — but it's the only image on the site carrying one. Either Lea supplies the unmarked original (open item 1 would cover it) or the image goes. | nothing — it renders fine | open |
 | 13 | **`robots.txt` currently blocks every crawler.** Deliberate — step 10 was pulled forward, so the site is live at Lea's permanent URL while the home page is a placeholder and `/work` is a scaffold. `public/robots.txt` must be replaced with a real one at step 9, or the finished site is never indexed. The file says so in a comment of its own. | Step 9 must not close without this | open |
@@ -489,7 +495,7 @@ silent one.
 
 ---
 
-### 5. Home page — `todo`
+### 5. Home page — `done`
 
 **Goal:** the signature page. This is where the animation budget goes.
 
@@ -500,7 +506,63 @@ to the design system rather than one-off styling here.
 
 **Done when:** complete and responsive at 375 / 768 / 1440 px, reduced-motion verified.
 
-**Outcome:** _(fill in)_
+**Outcome:** the home page is real — four bands, built from step 2's primitives,
+with one new shared component and two new component classes.
+
+- **First screen** — her cover sheet rearranged for a screen: the white card on
+  the grey ground, the rule with `PORTFOLIO` set vertically, her name at display
+  size, and the standfirst resting on the same bottom edge once there is room
+  for it. The photograph is a band across the foot of the card, drifting on
+  `data-parallax`. Exactly one viewport tall from 64rem up.
+- **Selected work** — the six featured projects as a staggered 2-up grid, with
+  the count, and `All work` beside it.
+- **About teaser** — the scope statement, the bio paragraph from
+  `docs/BRIEF.md` §1, and three figures counted from the project data at build
+  time (17 projects · 3 countries · 3,072 m²), so no figure here can contradict
+  the work index.
+- **Contact** — heading, one line, and a link to `/contact`. The address itself
+  is step 8's, assembled in JS.
+- **`src/components/ProjectCard.astro`** — hero image at 2:1, place, title, then
+  type, area and status. Everything it prints comes through a helper in
+  `src/lib/projects.ts`, so it can't assemble a location differently from the
+  detail page, and the whole card is the anchor. `/work` renders the same
+  component in step 6.
+- **`src/lib/projects.ts`** gains `hrefOf()` (one line for step 7 to change) and
+  `totalAreaOf()`.
+- **`global.css`** gains `.link-rule` and `.project-card`, both documented in a
+  new **Components** section on `/styleguide` alongside a real card.
+
+**Verified:** `npm run build` — 0 errors, 0 warnings, 0 hints; `astro check`
+clean across 23 files. Read back out of `dist/index.html`: one `h1`, three `h2`,
+six project `h3` in portfolio order; 7 images, all with alt text and explicit
+width/height, 6 lazy and the hero eager; AVIF and WebP on every one; every
+internal href resolves to a page that exists.
+
+Measured in Chrome at 375 / 768 / 1440, then again with JavaScript disabled and
+again under `prefers-reduced-motion` — 36 runs, no failures, `hidden=0`
+throughout, so the visibility contract holds. Nothing overflows at any width.
+Looked at: the hero at all three widths and the whole page end to end.
+
+**Three sizing bugs the screenshots caught**, none of which the build would have:
+
+1. `Media`'s inline `aspect-ratio` resolves the *width* from the height when the
+   height is given and the width is auto. A full-height column made the hero
+   1062px wide inside a 766px slot, with the card's `overflow` quietly cropping
+   the difference.
+2. SplitText sets every line it makes to `white-space: nowrap`, and a flex or
+   grid item's default `min-width: auto` refuses to shrink below that — one
+   heading line dragged the card 37px past the space it had. `min-w-0`.
+3. A `1fr` row can only take "whatever the text leaves" against a *definite*
+   height. Against `.first-screen`'s min-height it fell back to the image's own
+   2:1 height and pushed the card 371px past the viewport.
+
+**Note for the step 8 and 9 privacy scans:** a grep of `dist/` for an email
+address matches `jack@greensock.com` — GSAP's licence header inside the vendor
+bundle, which has shipped since step 2. It is not Lea's data. Scope those
+checks to the pages, or expect that one hit.
+
+**Not verified:** the animations still haven't been watched *in motion* — the
+screenshots are taken after everything has settled, so they show end states.
 
 ---
 
@@ -541,7 +603,8 @@ rules in `CLAUDE.md`. Assemble the address in JS so it isn't plain text in the
 HTML, with a sensible non-JS fallback.
 
 **Done when:** both pages complete, and a grep of `dist/` finds no plain-text
-email or phone number anywhere.
+email or phone number anywhere. Scope that grep to the pages: the GSAP bundle
+carries `jack@greensock.com` in its licence header and always has.
 
 **Outcome:** _(fill in)_
 

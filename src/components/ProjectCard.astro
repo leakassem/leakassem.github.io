@@ -1,0 +1,67 @@
+---
+import Media from './Media.astro';
+import {
+  areaLabel,
+  hrefOf,
+  placeOf,
+  statusLabel,
+  typeLabel,
+  type Project,
+} from '../lib/projects';
+
+/**
+ * One project as a link: its hero image, where it is, what it is.
+ *
+ * Built here rather than in the home page because `/work` renders the same
+ * card for all 17 (step 6) — how a project introduces itself should be one
+ * decision, not two that drift.
+ *
+ * Everything printed comes through a helper in `src/lib/projects.ts`, so the
+ * card can't assemble a location or an area differently from the detail page.
+ * The whole card is the anchor, so the hit area is the image and the text
+ * rather than the title alone.
+ */
+interface Props {
+  project: Project;
+  /**
+   * How wide the card renders at each breakpoint. Required by `Media`, and
+   * only the calling page knows its own grid.
+   */
+  sizes: string;
+  /**
+   * Off inside a staggered `Grid`, which owns its children's entrance — two
+   * tweens on the same opacity fight each other.
+   */
+  reveal?: boolean;
+  class?: string;
+}
+
+// Annotated rather than inferred — see the note in Container.astro.
+const { project, sizes, reveal, class: className = '' }: Props = Astro.props;
+
+const { title, hero, type, status } = project.data;
+
+// Area is absent on projects whose sheets never state one, and the row simply
+// gets shorter rather than printing an invented number.
+const facts = [typeLabel(type), areaLabel(project), statusLabel(status)].filter(
+  (fact): fact is string => Boolean(fact),
+);
+---
+
+<a href={hrefOf(project)} class:list={['project-card', className]}>
+  {
+    hero && (
+      <Media
+        src={hero.src}
+        alt={hero.alt}
+        ratio="2/1"
+        sizes={sizes}
+        reveal={reveal}
+      />
+    )
+  }
+
+  <p class="label text-muted mt-5">{placeOf(project)}</p>
+  <h3 class="font-display text-title project-card-title mt-2">{title}</h3>
+  <p class="text-small text-muted mt-2">{facts.join(' · ')}</p>
+</a>

@@ -3,8 +3,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Container from '../components/Container.astro';
 import Grid from '../components/Grid.astro';
 import Media from '../components/Media.astro';
+import ProjectCard from '../components/ProjectCard.astro';
 import Section from '../components/Section.astro';
 import VerticalRule from '../components/VerticalRule.astro';
+import { getFeaturedProjects } from '../lib/projects';
 
 /*
   Real project crops rather than the sheet composites they came out of — this
@@ -54,6 +56,10 @@ const spacing = [
   { token: '--spacing-header', fallback: 'clamp(3.75rem, 6vw, 5rem)', use: 'Sticky header height — what a full first screen subtracts', class: 'w-header' },
   { token: '--spacing-tap', fallback: '2.75rem', use: 'Minimum pointer target on small type', class: 'w-tap' },
 ];
+
+// A real project, so the card below is the one the site ships rather than a
+// mock-up of it.
+const [cardDemo] = await getFeaturedProjects();
 
 const gridDemo = [
   { src: azLiving, alt: 'Double-height living room with a marble feature wall and olive armchairs' },
@@ -371,6 +377,51 @@ const gridDemo = [
           options with nothing to animate and so nothing to no-op under
           reduced motion.
         </p>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- -------------------------------------------------------- components -->
+  <Section tone="ground" divider label="Components">
+    <Container>
+      <h2 class="font-display text-title">Components</h2>
+      <p class="text-small text-muted mt-2 max-w-text">
+        Pieces built out of the primitives above, shared between pages rather
+        than written twice.
+      </p>
+
+      <div class="mt-block">
+        <p class="label text-muted">Standalone link — .link-rule</p>
+        <p class="text-small text-muted mt-2 max-w-text">
+          The site's only thing resembling a button, and it is a hairline
+          rather than a box — a filled button is a shape her layouts never
+          use. The rule extends on hover; under
+          <code>prefers-reduced-motion</code> the global guard collapses that
+          transition and the link simply doesn't move.
+        </p>
+        <a href="/styleguide" class="link-rule mt-4">All work</a>
+      </div>
+
+      <div class="mt-block">
+        <p class="label text-muted">Project card — ProjectCard.astro</p>
+        <p class="text-small text-muted mt-2 max-w-text">
+          How a project introduces itself: hero image at 2:1, place, title,
+          then type, area and status. Everything it prints comes through a
+          helper in <code>src/lib/projects.ts</code>, so it can't assemble a
+          location differently from the detail page. The whole card is the
+          anchor, so the hit area is the image and the text rather than the
+          title alone. Home and <code>/work</code> both render this.
+        </p>
+        {
+          cardDemo && (
+            <div class="mt-4 max-w-lg">
+              <ProjectCard
+                project={cardDemo}
+                sizes="(min-width: 640px) 32rem, 100vw"
+              />
+            </div>
+          )
+        }
       </div>
     </Container>
   </Section>

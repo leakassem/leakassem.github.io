@@ -5,7 +5,6 @@ type: house
 status: under construction
 city: Byblos
 area: 240
-featured: true
 sections:
   - sheet: 21
     role:

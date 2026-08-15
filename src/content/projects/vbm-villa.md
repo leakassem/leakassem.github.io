@@ -4,7 +4,6 @@ studio: Step Into Detail
 type: villa
 status: under construction
 city: Dubai
-featured: true
 sections:
   - rooms: "Living, dining & show kitchen"
     area: 150

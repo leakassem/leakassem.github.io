@@ -5,6 +5,7 @@ type: villa
 status: completed
 city: Dubai
 area: 110
+featured: true
 sections:
   - rooms: "Living, dining & show kitchen"
     sheet: 7

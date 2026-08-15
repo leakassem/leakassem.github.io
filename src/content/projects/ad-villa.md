@@ -4,6 +4,7 @@ studio: Step Into Detail
 type: villa
 status: completed
 city: Abu Dhabi
+featured: true
 sections:
   - rooms: Reception area
     area: 70

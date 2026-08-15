@@ -74,7 +74,11 @@ const projects = defineCollection({
       /** Whole-project area in m². Omit when the sheets state it per section instead. */
       area: z.number().positive().optional(),
 
-      /** Provisional — step 5 picks the five or six that carry the home page. */
+      /**
+       * Carries the home page's selected work. Six of them, chosen in step 5
+       * for the strength of the image and a spread of country, studio and type
+       * rather than for floor area. Lea confirms the set — open item 10.
+       */
       featured: z.boolean().default(false),
 
       sections: z.array(section).nonempty(),

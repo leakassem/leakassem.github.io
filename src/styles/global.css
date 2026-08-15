@@ -59,7 +59,14 @@
     breakpoint jumps in headline sizes. Weight is part of the token: display
     and headline are bold, title is light — that contrast is the identity.
   */
-  --text-display: clamp(3rem, 10vw, 9rem);
+  /*
+    Display is sized for the column it is actually set in, not for the page
+    width. The home page's name sits in half a card beside the lead photograph,
+    and at 10vw its longest word alone was wider than that column — which does
+    not wrap away, since min-content is a whole word. 7vw leaves real margin at
+    every width the hero splits at.
+  */
+  --text-display: clamp(3rem, 7vw, 7.5rem);
   --text-display--line-height: 0.88;
   --text-display--letter-spacing: -0.035em;
   --text-display--font-weight: 700;
@@ -268,6 +275,71 @@
     object-fit: cover;
   }
 
+  /*
+    Standalone link — the site's only thing resembling a button, and it is a
+    hairline rather than a box, because a filled button is the one shape her
+    layouts never use. The rule extends on hover; the global reduced-motion
+    guard collapses that transition, leaving a link that simply doesn't move.
+  */
+  .link-rule {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.875rem;
+    min-height: var(--spacing-tap);
+    color: var(--color-ink);
+    font-size: var(--text-label);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    line-height: 1.2;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .link-rule::after {
+    content: '';
+    width: 1.75rem;
+    height: var(--spacing-hair);
+    background-color: currentColor;
+    transition: width 300ms var(--ease-quiet);
+  }
+
+  .link-rule:hover::after {
+    width: 2.75rem;
+  }
+
+  /* ------------------------------------------------------------ project card */
+
+  /*
+    A project introducing itself — image, place, title, facts. See
+    `components/ProjectCard.astro`.
+
+    The hover scale is on the `img` and not on the `picture` wrapping it: the
+    image reveal leaves an inline transform on the picture element, and an
+    inline style beats a stylesheet rule, so hovering would do nothing once the
+    reveal had run.
+  */
+  .project-card {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .project-card img {
+    transition: transform 700ms var(--ease-quiet);
+  }
+
+  .project-card:hover img,
+  .project-card:focus-visible img {
+    transform: scale(1.03);
+  }
+
+  .project-card:hover .project-card-title {
+    text-decoration: underline;
+    text-decoration-thickness: var(--spacing-hair);
+    text-underline-offset: 0.3em;
+  }
+
   /* ------------------------------------------------------------- site chrome */
 
   /*
@@ -337,6 +409,22 @@
   */
   .first-screen {
     min-height: calc(100svh - var(--spacing-header));
+  }
+
+  /*
+    On a wide screen it is exactly one screen rather than at least one. A grid
+    row can only be told to take "whatever the text leaves" if the height it is
+    dividing is definite, and a min-height is not: with only a minimum, a `1fr`
+    row falls back to its content's own height, which is how the home hero's
+    photograph pushed the card 371px past the viewport.
+
+    Below this width the minimum is the right rule — a phone's first screen
+    should grow with its content rather than crop it.
+  */
+  @media (min-width: 64rem) {
+    .first-screen {
+      height: calc(100svh - var(--spacing-header));
+    }
   }
 }
 
