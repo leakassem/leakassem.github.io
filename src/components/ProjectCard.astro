@@ -33,11 +33,25 @@ interface Props {
    * tweens on the same opacity fight each other.
    */
   reveal?: boolean;
+  /**
+   * The title's heading level, so the card fits the page's outline rather than
+   * the page fitting the card. Home puts these under an `h2`; `/work` has only
+   * its own `h1` above them.
+   */
+  headingLevel?: 2 | 3;
   class?: string;
 }
 
 // Annotated rather than inferred — see the note in Container.astro.
-const { project, sizes, reveal, class: className = '' }: Props = Astro.props;
+const {
+  project,
+  sizes,
+  reveal,
+  headingLevel = 3,
+  class: className = '',
+}: Props = Astro.props;
+
+const Heading = `h${headingLevel}` as const;
 
 const { title, hero, type, status } = project.data;
 
@@ -62,6 +76,6 @@ const facts = [typeLabel(type), areaLabel(project), statusLabel(status)].filter(
   }
 
   <p class="label text-muted mt-5">{placeOf(project)}</p>
-  <h3 class="font-display text-title project-card-title mt-2">{title}</h3>
+  <Heading class="font-display text-title project-card-title mt-2">{title}</Heading>
   <p class="text-small text-muted mt-2">{facts.join(' · ')}</p>
 </a>

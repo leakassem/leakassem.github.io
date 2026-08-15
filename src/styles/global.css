@@ -340,6 +340,79 @@
     text-underline-offset: 0.3em;
   }
 
+  /* ----------------------------------------------------------------- filters */
+
+  /*
+    A filter option: a radio that does the work and a chip that shows it.
+
+    The input is visually hidden but not hidden from anything else — it keeps
+    its place in the tab order, its group's arrow-key behaviour and its
+    announced state, all of which a div with a click handler would have had to
+    reimplement. `display: none` and `visibility: hidden` would take it out of
+    the tab order, so it is clipped instead.
+  */
+  .filter-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--spacing-tap);
+    padding-inline: 1rem;
+    border: var(--spacing-hair) solid var(--color-hairline-soft);
+    color: var(--color-muted);
+    font-size: var(--text-label);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    line-height: 1.2;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color 200ms var(--ease-quiet),
+      border-color 200ms var(--ease-quiet);
+  }
+
+  .chip:hover {
+    border-color: var(--color-hairline);
+    color: var(--color-ink);
+  }
+
+  .filter-input:checked + .chip {
+    background-color: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  /* The focus ring belongs on the chip: the input it belongs to is 1px wide. */
+  .filter-input:focus-visible + .chip {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  .chip-count {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.6;
+  }
+
+  /*
+    Shown only when the checked combination matches nothing. Which combinations
+    those are is generated from the project data in `src/pages/work.astro` —
+    there is no rule here that could disagree with the content.
+  */
+  .work-empty {
+    display: none;
+  }
+
   /* ------------------------------------------------------------- site chrome */
 
   /*

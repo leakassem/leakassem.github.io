@@ -1,115 +1,304 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Media from '../components/Media.astro';
-import {
-  areaLabel,
-  facetsOf,
-  getProjects,
-  locationOf,
-  roomsOf,
-  rolesOf,
-  sheetsOf,
-  statusLabel,
-  typeLabel,
-  type Facet,
-} from '../lib/projects';
-import { STUDIO_PERIODS } from '../lib/facets';
+import Container from '../components/Container.astro';
+import Grid from '../components/Grid.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import Section from '../components/Section.astro';
+import { countryOf, facetsOf, getProjects, type Project } from '../lib/projects';
 
 /*
-  Deliberately unstyled — this is step 3's proof that the content model loads,
-  not the work index. Step 6 replaces it wholesale with the real grid, its
-  filters and its stagger, at which point everything below goes.
+  The work index: all 17 projects, filterable by type, location and status.
 
-  It renders every derived field rather than just the titles, because the point
-  is to catch a wrong area sum or an unmapped city here rather than in step 6.
+  Filtering is CSS, not JavaScript. Each group is a radio group, and a
+  generated rule per option hides the cards that don't match the checked one —
+  so the filters work with JavaScript off, with no toggle state to get wrong
+  and nothing to re-render. The groups combine because each rule hides
+  independently of the others. `type="reset"` clears them all, also without
+  JavaScript, because the whole thing is a form.
+
+  The script at the bottom is enhancement only: it mirrors the current
+  selection into the query string so a filtered view can be linked, and
+  announces how many projects are showing. Nothing it does is load-bearing.
 */
 
 const projects = await getProjects();
-const featured = projects.filter((project) => project.data.featured);
-
 const facets = facetsOf(projects);
-const facetGroups: [string, Facet[]][] = [
-  ['Type', facets.type],
-  ['Location', facets.location],
-  ['Status', facets.status],
-  ['Studio', facets.studio],
-];
+
+/** URL- and id-safe: "under construction" → "under-construction". */
+const slug = (value: string) => value.toLowerCase().replace(/\s+/g, '-');
+
+/**
+ * The three cuts `/work` filters on. Studio is deliberately not among them —
+ * `docs/BRIEF.md` §5 lists it, but a fourth group of chips for two values that
+ * mostly restate the date range is more UI than it earns.
+ */
+const GROUPS = [
+  { key: 'type', legend: 'Type', all: 'All types', options: facets.type },
+  { key: 'location', legend: 'Location', all: 'Everywhere', options: facets.location },
+  { key: 'status', legend: 'Status', all: 'Any status', options: facets.status },
+] as const;
+
+/** What each card carries, and what the generated rules match against. */
+const valuesOf = (project: Project) => ({
+  type: project.data.type as string,
+  location: countryOf(project) as string,
+  status: project.data.status as string,
+});
+
+const inputId = (group: string, value: string) => `f-${group}-${slug(value)}`;
+
+/*
+  The filter rules, generated from the vocabularies rather than written out, so
+  a new project type can't arrive without its rule.
+*/
+const hideRules = GROUPS.flatMap((group) =>
+  group.options.map(
+    (option) =>
+      `.work:has(#${inputId(group.key, option.value)}:checked) ` +
+      `.work-card:not([data-${group.key}="${option.value}"])`,
+  ),
+)
+  .map((selector) => `${selector} { display: none; }`)
+  .join('\n');
+
+/*
+  Nearly half of the 84 possible combinations match nothing — there are no
+  villas in Lebanon and no apartments in Qatar — so the empty state has to work
+  without JavaScript too.
+
+  Enumerating all 41 would be wasteful when most are implied: if no chalet is
+  in the UAE then no *completed* chalet is either. Taking the empty pairs first
+  and then only the triples they don't already cover brings it to 16 selectors,
+  and computing it here means it can never disagree with the content.
+*/
+const KEYS = GROUPS.map((group) => group.key);
+const has = (selection: Record<string, string>) =>
+  projects.some((project) => {
+    const values = valuesOf(project) as Record<string, string>;
+    return Object.entries(selection).every(([key, value]) => values[key] === value);
+  });
+
+const optionsOf = (key: string) =>
+  GROUPS.find((group) => group.key === key)!.options.map((option) => option.value);
+
+const emptySelections: Record<string, string>[] = [];
+
+for (let i = 0; i < KEYS.length; i++) {
+  for (let j = i + 1; j < KEYS.length; j++) {
+    for (const a of optionsOf(KEYS[i]!)) {
+      for (const b of optionsOf(KEYS[j]!)) {
+        const selection = { [KEYS[i]!]: a, [KEYS[j]!]: b };
+        if (!has(selection)) emptySelections.push(selection);
+      }
+    }
+  }
+}
+
+for (const type of optionsOf('type')) {
+  for (const location of optionsOf('location')) {
+    for (const status of optionsOf('status')) {
+      const selection = { type, location, status };
+      if (has(selection)) continue;
+      const covered = emptySelections.some((empty) =>
+        Object.entries(empty).every(([key, value]) => selection[key as keyof typeof selection] === value),
+      );
+      if (!covered) emptySelections.push(selection);
+    }
+  }
+}
+
+const emptyRule = emptySelections.length
+  ? `${emptySelections
+      .map(
+        (selection) =>
+          Object.entries(selection)
+            .map(([key, value]) => `:has(#${inputId(key, value)}:checked)`)
+            .join('') + ' .work-empty',
+      )
+      .map((selector) => `.work${selector}`)
+      .join(',\n')} { display: block; }`
+  : '';
+
+const filterCss = `${hideRules}\n\n${emptyRule}`;
 ---
 
-<BaseLayout title="Work — Lea Kassem" noindex>
-  <div style="padding: 2rem; max-width: 60rem; margin-inline: auto;">
-    <h1>Work</h1>
+<BaseLayout
+  title="Work — Lea Kassem"
+  description="Seventeen residential interiors across the UAE, Qatar and Lebanon."
+>
+  <div class="work">
+    <Section label="Residential" divider>
+      <Container>
+        <h1 class="font-display text-headline" data-reveal="heading">Work</h1>
 
-    <p>
-      <strong>{projects.length} projects</strong>, {featured.length} of them flagged
-      for the home page. Unstyled scaffold — step 6 builds the real index, step 4
-      supplies the images, step 7 makes the slugs below into pages.
-    </p>
+        <p class="text-subhead text-muted max-w-text mt-6" data-reveal>
+          {projects.length} residential projects across the UAE, Qatar and Lebanon
+          — villas, apartments and houses taken from concept design to delivery
+          on site.
+        </p>
 
-    <h2>Facets</h2>
-    <ul>
-      {
-        facetGroups.map(([group, options]) => (
-          <li>
-            <strong>{group}</strong>:{' '}
-            {options.map((option) => `${option.label} (${option.count})`).join(' · ')}
-          </li>
-        ))
-      }
-    </ul>
-
-    <h2>Projects</h2>
-    <ol>
-      {
-        projects.map((project) => (
-          <li style="margin-block: 1.5rem;">
-            <h3>
-              {project.data.title}
-              {project.data.featured && ' ★'}
-            </h3>
-
-            <ul>
-              <li>
-                <code>/work/{project.id}</code>
-              </li>
-              <li>
-                {project.data.studio} · {STUDIO_PERIODS[project.data.studio]}
-              </li>
-              <li>
-                {locationOf(project)}
-                {project.data.development && ` — ${project.data.development}`}
-              </li>
-              <li>
-                {typeLabel(project.data.type)} · {statusLabel(project.data.status)}
-                {areaLabel(project) && ` · ${areaLabel(project)}`}
-              </li>
-              <li>
-                {sheetsOf(project).length === 1 ? 'Sheet' : 'Sheets'}{' '}
-                {sheetsOf(project).join(', ')}
-              </li>
-              {roomsOf(project).length > 0 && <li>{roomsOf(project).join(' / ')}</li>}
-              <li>Role: {rolesOf(project).join('; ')}</li>
-              <li>
-                Images: {project.data.hero ? 'hero' : 'no hero'},{' '}
-                {project.data.gallery.length} in gallery
-              </li>
-            </ul>
-
+        <!--
+          A form, so the browser's own reset clears every group at once with no
+          script. The radios are visually hidden but still focusable and still
+          in the tab order; the chip beside each one is its label.
+        -->
+        <form class="mt-block" data-filters>
+          <div class="gap-block flex flex-wrap">
             {
-              project.data.hero && (
-                <div style="max-width: 22rem; margin-top: 0.75rem;">
-                  <Media
-                    src={project.data.hero.src}
-                    alt={project.data.hero.alt}
-                    ratio="2/1"
-                    sizes="22rem"
-                  />
-                </div>
-              )
+              GROUPS.map((group) => (
+                <fieldset class="min-w-0" data-filter-group={group.key}>
+                  <legend class="label text-muted">{group.legend}</legend>
+
+                  <!--
+                    `relative` so the clipped radios are positioned against
+                    their own row. Absolutely positioned with no positioned
+                    ancestor they would all sit at the top-left of the page,
+                    and tabbing to a filter would scroll away from it.
+                  -->
+                  <div class="relative mt-4 flex flex-wrap gap-2">
+                    <input
+                      type="radio"
+                      name={group.key}
+                      id={inputId(group.key, 'all')}
+                      value=""
+                      class="filter-input"
+                      checked
+                    />
+                    <label class="chip" for={inputId(group.key, 'all')}>
+                      {group.all}
+                    </label>
+
+                    {group.options.map((option) => (
+                      <>
+                        <input
+                          type="radio"
+                          name={group.key}
+                          id={inputId(group.key, option.value)}
+                          value={option.value}
+                          class="filter-input"
+                        />
+                        <label class="chip" for={inputId(group.key, option.value)}>
+                          {option.label}
+                          <span class="chip-count">{option.count}</span>
+                        </label>
+                      </>
+                    ))}
+                  </div>
+                </fieldset>
+              ))
             }
-          </li>
-        ))
-      }
-    </ol>
+          </div>
+
+          <div class="gap-gutter mt-block flex flex-wrap items-center">
+            <button type="reset" class="link-rule">Clear filters</button>
+
+            <!--
+              Written by the script and announced when it changes. Without
+              JavaScript it stays as rendered, which is true of the unfiltered
+              page it is rendered for.
+            -->
+            <p class="text-small text-muted" data-filter-count aria-live="polite">
+              Showing all {projects.length} projects
+            </p>
+          </div>
+        </form>
+      </Container>
+    </Section>
+
+    <Section tone="paper" divider>
+      <Container>
+        <Grid cols={3} gap="wide" stagger as="ul" class="work-grid">
+          {
+            projects.map((project) => {
+              const values = valuesOf(project);
+              return (
+                <li
+                  class="work-card"
+                  data-type={values.type}
+                  data-location={values.location}
+                  data-status={values.status}
+                >
+                  <ProjectCard
+                    project={project}
+                    headingLevel={2}
+                    sizes="(min-width: 1024px) 25rem, (min-width: 640px) 45vw, 100vw"
+                    reveal={false}
+                  />
+                </li>
+              );
+            })
+          }
+        </Grid>
+
+        <p class="work-empty text-subhead text-muted">
+          No projects match those filters. <a
+            href="/work"
+            class="underline underline-offset-4">Show all {projects.length}</a
+          >.
+        </p>
+      </Container>
+    </Section>
   </div>
+
+  <style set:html={filterCss}></style>
+
+  <script>
+    /*
+      Enhancement only. The filtering itself is CSS — see the comment at the top
+      of this page — so everything here is about making a filtered view
+      shareable and saying out loud how many projects are left.
+
+      It reads the groups and values out of the DOM rather than holding its own
+      copy of the vocabulary, so adding a facet needs no change here.
+    */
+    const form = document.querySelector<HTMLFormElement>('[data-filters]');
+    const count = document.querySelector<HTMLElement>('[data-filter-count]');
+    const cards = [...document.querySelectorAll<HTMLElement>('.work-card')];
+
+    if (form && count) {
+      const groups = [...form.querySelectorAll<HTMLElement>('[data-filter-group]')].map(
+        (fieldset) => fieldset.dataset.filterGroup!,
+      );
+
+      const selection = () =>
+        Object.fromEntries(
+          groups
+            .map((group) => [group, new FormData(form).get(group)?.toString() ?? ''])
+            .filter(([, value]) => value),
+        );
+
+      /** Counted off the same rules the CSS applies, by asking the browser. */
+      const showing = () => cards.filter((card) => card.offsetParent !== null).length;
+
+      const sync = () => {
+        const chosen = selection();
+        const query = new URLSearchParams(chosen).toString();
+
+        history.replaceState(null, '', query ? `?${query}` : location.pathname);
+
+        const shown = showing();
+        count.textContent =
+          Object.keys(chosen).length === 0
+            ? `Showing all ${cards.length} projects`
+            : `Showing ${shown} of ${cards.length} projects`;
+      };
+
+      // A filtered URL restores its filters. Values that aren't real options
+      // are ignored rather than trusted — this is a query string.
+      const initial = new URLSearchParams(location.search);
+      for (const group of groups) {
+        const value = initial.get(group);
+        if (!value) continue;
+        const input = form.querySelector<HTMLInputElement>(
+          `input[name="${group}"][value="${CSS.escape(value)}"]`,
+        );
+        if (input) input.checked = true;
+      }
+
+      form.addEventListener('change', sync);
+      // `reset` fires before the controls are actually reset.
+      form.addEventListener('reset', () => window.setTimeout(sync));
+      sync();
+    }
+  </script>
 </BaseLayout>

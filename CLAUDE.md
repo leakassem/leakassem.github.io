@@ -60,6 +60,11 @@ with no `alt`, or — under `--no-js` / `--reduced` — any reveal target still 
 `opacity: 0`. Prefer this over `chrome --headless --window-size`, which Windows
 silently clamps to about 500px wide, so a "375px" shot is a lie.
 
+**In Git Bash, prefix a route argument with `MSYS_NO_PATHCONV=1`** — otherwise
+`/work` is rewritten to `C:/Program Files/Git/work` before Node sees it, the
+route no longer starts with `/`, and the script quietly falls back to shooting
+every default route instead of the one asked for. PowerShell needs no prefix.
+
 ## Deploying
 
 `git push` to `main` is the deploy — the workflow runs `npm run build` (so
@@ -112,9 +117,17 @@ adding anything visual, and update it when the system changes.
   vertical space, Container owns horizontal — that split is what lets a band run
   full-bleed while its text stays measured.
 - **Shared pieces built on those primitives**: `ProjectCard` (how a project
-  introduces itself — home and `/work` both render it, so change it once), and
-  the component classes `.link-rule` (the site's only button-like link) and
-  `.project-card`. All three are on `/styleguide` under **Components**.
+  introduces itself — home and `/work` both render it, so change it once), the
+  filter chips (`.filter-input` + `.chip`), and the component classes
+  `.link-rule` (the site's only button-like link) and `.project-card`. All are
+  on `/styleguide` under **Components**.
+- **`/work` filters in CSS, not JavaScript.** Each facet is a radio group, and
+  `src/pages/work.astro` generates one rule per option — plus the selectors for
+  the combinations that match nothing — from the project data itself. So the
+  filters work with JS off, they combine, `type="reset"` clears them, and no
+  rule can disagree with the content. The script on that page is enhancement
+  only: it mirrors the selection into the query string and announces the count.
+  Don't replace this with client-side rendering.
 - **Motion is opt-in by data attribute**, never a hand-written tween in a page:
 
   | Attribute | Effect |

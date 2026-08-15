@@ -1,9 +1,9 @@
 # TEMPORARY — the site is live while it is still being built.
 #
-# The home page is a placeholder, /work is an unstyled scaffold, and /about and
-# /contact are stubs. None of that should be what a search for Lea's name finds.
-# Individual work-in-progress pages already carry a noindex meta tag; this
-# covers the rest of the site, including the home page.
+# The home page is real as of step 5, but /work is still an unstyled scaffold
+# and /about and /contact are stubs. None of that should be what a search for
+# Lea's name finds. Individual work-in-progress pages already carry a noindex
+# meta tag; this covers the rest of the site, including the home page.
 #
 # STEP 9 MUST REPLACE THIS FILE with a real robots.txt and a sitemap reference.
 # Leaving it as-is means the finished site is never indexed. Tracked as open

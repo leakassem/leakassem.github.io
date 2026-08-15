@@ -12,9 +12,15 @@ To see where things stand: *"where are we"*.
 Every session updates this file before finishing, so it is always the current
 state of the project.
 
-> **Current step: 6 — Work index** (`todo`). The home page is live. Step 10 was
-> pulled forward and is done: the site is at **https://leakassem.github.io** and
-> every push to `main` redeploys it. A step isn't finished until it's pushed.
+> **Current step: 7 — Project detail** (`todo`). Home and `/work` are both live
+> and real. Step 10 was pulled forward and is done: the site is at
+> **https://leakassem.github.io** and every push to `main` redeploys it. A step
+> isn't finished until it's pushed.
+>
+> Step 7 also owns two things left deliberately: project cards currently link to
+> `/work` rather than to a detail page — one line, `hrefOf()` in
+> `src/lib/projects.ts` — and the view transitions that will make filtering feel
+> like a swap rather than a page load.
 
 ---
 
@@ -65,6 +71,9 @@ state of the project.
 | 2026-08-15 | The hero photograph is **a band across the foot of the card**, not a column beside the name | A column next to the text is portrait-shaped, and filling one made `cover` scale a 2:1 crop up by about 2× — the soft hero `docs/BRIEF.md` §6 says to design around rather than into. Across the card it renders at 1313px from a 1314px source: no upscaling at all, and the crop happens where the image has pixels to spare |
 | 2026-08-15 | `--text-display` retuned from **10vw to 7vw** | Display type is sized for the column it is set in, not for the page width. At 10vw the name's longest word alone was wider than the hero's text column, and min-content is a whole word — it does not wrap away. 7vw leaves real margin at every width, and the name is still 100px at 1440 |
 | 2026-08-15 | `.first-screen` is an **exact height from 64rem up**, a minimum below it | A `1fr` grid row can only take "whatever the text leaves" if the height it divides is definite; against a min-height it falls back to its content's own height, which pushed the hero 371px past the viewport. On a phone the minimum is still the right rule — a first screen should grow with its content rather than crop it |
+| 2026-08-15 | **`/work` filters in CSS, not JavaScript** — a radio group per facet and a generated rule per option | It makes the JS-off baseline the *only* implementation rather than a second one kept in step with the first, which is where filtering usually rots. The groups combine for free, `type="reset"` clears them for free, and there is no toggle state to get wrong. The script left over is genuinely optional: query-string sync and a spoken count |
+| 2026-08-15 | The filter rules and the empty-state selectors are **generated from the project data**, not written out | 11 hide rules and 16 empty-combination selectors is more than anyone will keep correct by hand, and half the combinations really are empty — no villas in Lebanon, no apartments in Qatar. Generated, they cannot disagree with the content. Enumerating empty pairs before triples takes 41 selectors down to 16 |
+| 2026-08-15 | Studio is **not** a filter on `/work`, though `docs/BRIEF.md` §5 lists it | Three groups already fill a phone screen. A fourth for two values that mostly restate the date range is more UI than it earns; `facetsOf()` still computes it, so adding it back is a one-line change |
 | 2026-08-15 | Project cards link to **`/work`** until step 7 exists | `hrefOf()` in `src/lib/projects.ts` is the only place that decides, so step 7 changes one line. The site is live, and a card that 404s is worse than one that lands on the index |
 
 ---
@@ -85,7 +94,7 @@ state of the project.
 | 10 | **Which projects lead.** Re-picked in step 5 by looking at all 17 heroes: **AD villa, DIFC apartment, K1 villa, AZ triplex, Qatar villa, B11 apartment**, in portfolio order. Chosen for the strength of the photograph and a spread of country, studio and type — not floor area, which is what the first pass used. Separately, **3B apartment leads the home page** with the site's sharpest crop and is deliberately not in the six. Lea should confirm both. One `featured` flag per file, plus `LEAD` in `src/pages/index.astro`. | nothing — the page ships | open |
 | 11 | **Which photo leads each project.** The hero is one deliberate pick per project, in `HERO` in `scripts/crop-sheets.mjs` — chosen for being a perspective render of the main space rather than by size. Lea should confirm all 17. One line each to change, then re-run the script. | nothing — heroes work | open |
 | 12 | **A studio mark is burned into one image.** 3BF apartment's bathroom (`gallery-05.jpg`) carries a small "Design in Frame" logo in the pixels. Unlike the DIFC watermark there's no clean twin to fall back on, and it's the studio she did the work for, so it reads as a credit rather than a mistake — but it's the only image on the site carrying one. Either Lea supplies the unmarked original (open item 1 would cover it) or the image goes. | nothing — it renders fine | open |
-| 13 | **`robots.txt` currently blocks every crawler.** Deliberate — step 10 was pulled forward, so the site is live at Lea's permanent URL while the home page is a placeholder and `/work` is a scaffold. `public/robots.txt` must be replaced with a real one at step 9, or the finished site is never indexed. The file says so in a comment of its own. | Step 9 must not close without this | open |
+| 13 | **`robots.txt` currently blocks every crawler.** Deliberate — step 10 was pulled forward, so the site is live at Lea's permanent URL while `/work` is still a scaffold and `/about` and `/contact` are stubs. `public/robots.txt` must be replaced with a real one at step 9, or the finished site is never indexed. The file says so in a comment of its own. | Step 9 must not close without this | open |
 | 14 | **Repo access.** The repo is on Lea's account by design (decision 2026-08-14), so she has to create it and add the maintainer as a collaborator before anything can be pushed. If she'd rather not add a collaborator, the alternatives are a deploy key or working from a fork — both worse. | Step 10's push | open |
 
 ---
@@ -566,7 +575,7 @@ screenshots are taken after everything has settled, so they show end states.
 
 ---
 
-### 6. Work index — `todo`
+### 6. Work index — `done`
 
 **Task:** build `/work` — the full project grid, filterable by type, location and
 status (facets in `docs/BRIEF.md` §5). Filtering must work without JavaScript as
@@ -574,7 +583,62 @@ a baseline, enhanced with client-side JS. Staggered grid entrance animation.
 
 **Done when:** all 17 projects listed, filters work both JS-off and JS-on.
 
-**Outcome:** _(fill in)_
+**Outcome:** `/work` is the real index — all 17 projects as a staggered 3-up
+grid, filterable by type, location and status, **and the filtering is CSS**.
+
+- **Three radio groups, one generated rule per option.** Checking a chip makes
+  `.work:has(#f-type-villa:checked) .work-card:not([data-type="villa"])` apply,
+  which hides everything else. The groups combine because each rule hides
+  independently. `type="reset"` on the form clears all three. None of that is
+  JavaScript, so none of it can fail to load, and there is no toggle state to
+  get wrong.
+- **The empty state is generated too.** 41 of the 84 combinations match nothing
+  — there are no villas in Lebanon and no apartments in Qatar — so the page
+  computes the empty ones from the content and emits selectors for them.
+  Enumerating the empty *pairs* first and then only the triples they don't
+  already cover brings 41 down to 16 selectors.
+- **The script is enhancement only:** it mirrors the selection into the query
+  string so a filtered view can be linked or bookmarked, restores it on load,
+  and announces "Showing 5 of 17 projects" through `aria-live`. Nothing it does
+  is load-bearing, and it reads the vocabulary out of the DOM rather than
+  holding a second copy of it.
+- **`ProjectCard` gained a `headingLevel` prop**, so the card fits the page's
+  outline rather than the page fitting the card — `h2` here under the single
+  `h1`, `h3` on the home page under "Selected work".
+- **New in the design system:** `.filter-input`, `.chip`, `.chip-count` and
+  `.work-empty`, all rendered on `/styleguide` under **Components**.
+- The step-3 scaffold is gone, and so is its `noindex` — `/work` is a real page
+  now. `public/robots.txt` still covers the site until step 9.
+
+**Verified:** `npm run build` — 0 errors, 0 warnings, 0 hints. Built HTML: 17
+cards, 14 radios, 11 hide rules, 16 empty-state selectors, one `h1` and 17 `h2`,
+every image with alt text.
+
+**Driven in Chrome with real mouse clicks and JavaScript execution disabled**,
+which is the only way to prove the baseline: unfiltered 17 → villas 5 → plus UAE
+4 → plus completed 3; villas + Lebanon shows 0 **and the empty state appears**;
+apartments + Lebanon + completed 5; reset restores all 17 and leaves only the
+three "all" options checked. The same eleven checks pass with JavaScript on, and
+with it the query string mirrors the selection and `/work?type=villa&status=completed`
+restores its filters on load.
+
+**Keyboard:** tab order is skip link → wordmark → three nav links → one stop per
+radio group, focus lands on screen rather than scrolling away, arrow keys move
+within a group and filter as they go, and the focus ring lands on the chip
+rather than on the 1px input behind it.
+
+Measured at 375 / 768 / 1440, with JS off and under reduced motion: no overflow,
+nothing hidden.
+
+**A bug in the chip pattern, caught by asking where focus goes:** the clipped
+radios are `position: absolute` with nothing positioned above them, so all 14
+stacked at the top-left of the document — tabbing to a filter would have
+scrolled the page away from the filter. Their row is `relative` now.
+
+**`CLAUDE.md` corrected:** in Git Bash a route argument like `/work` is rewritten
+to `C:/Program Files/Git/work` before Node sees it, so `scripts/shoot.mjs`
+silently shoots every default route instead of the one asked for. Needs
+`MSYS_NO_PATHCONV=1`.
 
 ---
 

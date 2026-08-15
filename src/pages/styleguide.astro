@@ -403,6 +403,39 @@ const gridDemo = [
       </div>
 
       <div class="mt-block">
+        <p class="label text-muted">Filter chips — .filter-input + .chip</p>
+        <p class="text-small text-muted mt-2 max-w-text">
+          A radio does the work; the chip beside it shows the state.
+          <code>/work</code> filters in CSS alone — a generated rule per option
+          hides the cards that don't match the checked one — so the filters
+          work with JavaScript off, the groups combine, and
+          <code>type="reset"</code> clears them all without a script. The input
+          is clipped rather than hidden, because <code>display: none</code>
+          would take it out of the tab order and cost the group its arrow-key
+          behaviour and its announced state. The focus ring goes on the chip:
+          the input it belongs to is one pixel wide.
+        </p>
+        <div class="relative mt-4 flex flex-wrap gap-2">
+          <input
+            type="radio"
+            name="demo"
+            id="demo-all"
+            class="filter-input"
+            checked
+          />
+          <label class="chip" for="demo-all">All types</label>
+          <input type="radio" name="demo" id="demo-villa" class="filter-input" />
+          <label class="chip" for="demo-villa">
+            Villas <span class="chip-count">5</span>
+          </label>
+          <input type="radio" name="demo" id="demo-apt" class="filter-input" />
+          <label class="chip" for="demo-apt">
+            Apartments <span class="chip-count">8</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="mt-block">
         <p class="label text-muted">Project card — ProjectCard.astro</p>
         <p class="text-small text-muted mt-2 max-w-text">
           How a project introduces itself: hero image at 2:1, place, title,
