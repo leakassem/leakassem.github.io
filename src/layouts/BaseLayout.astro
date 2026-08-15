@@ -1,4 +1,6 @@
 ---
+import { ClientRouter } from 'astro:transitions';
+
 import '../styles/global.css';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -26,6 +28,19 @@ const {
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    {/*
+      View transitions (docs/BRIEF.md §2). A project's hero carries the same
+      `view-transition-name` on the card it is clicked from and on the page it
+      lands on — see `transitionNameOf()` — so the photograph moves into place
+      instead of the whole page cross-fading.
+
+      This turns every internal link into a document swap rather than a reload,
+      which is why `initMotion` runs per page below and why the page-level
+      scripts on /work and /work/[slug] re-run on `astro:after-swap`. A browser
+      without the View Transition API navigates normally.
+    */}
+    <ClientRouter />
 
     <script is:inline>
       /*
@@ -70,8 +85,29 @@ const {
     <SiteFooter />
 
     <script>
-      import { initMotion } from '../scripts/motion';
+      import { armMotionGate, initMotion, teardownMotion } from '../scripts/motion';
+
+      /*
+        Once for this document, then once per client-side navigation. The
+        browser will not re-run a module script it has already run, so the
+        listeners are what keep motion alive after a swap — and they are
+        registered on `document`, which survives one.
+
+        `initMotion()` is called directly rather than only from a listener so
+        that a failure in the router's own bundle can't leave the first page
+        without its reveals.
+      */
       initMotion();
+
+      document.addEventListener('astro:before-swap', (event) => {
+        teardownMotion();
+        // The swap copies root attributes off the incoming document, `.motion`
+        // included, so the gate has to be put back on that document before it
+        // lands. See armMotionGate.
+        armMotionGate(event.newDocument);
+      });
+
+      document.addEventListener('astro:after-swap', () => initMotion());
     </script>
   </body>
 </html>

@@ -23,6 +23,7 @@
     node scripts/shoot.mjs /work --bottom     scrolled to the footer
     node scripts/shoot.mjs / --reduced        with prefers-reduced-motion
     node scripts/shoot.mjs / --no-js          with JavaScript disabled
+    node scripts/shoot.mjs /work --full       the whole page, not just a screen
     node scripts/shoot.mjs --all              every route in dist/
     node scripts/shoot.mjs --widths 375,1440  pick the widths
 
@@ -170,7 +171,15 @@ const MEASURE = `JSON.stringify((() => {
     stickyTop: Math.round(header?.getBoundingClientRect().top ?? -999),
     navGap: Math.round((nav?.getBoundingClientRect().left ?? 0) - (wordmark?.getBoundingClientRect().right ?? 0)),
     taps: [...new Set([...document.querySelectorAll('.nav-link')].map((a) => Math.round(a.getBoundingClientRect().height)))],
-    imagesNoAlt: [...document.images].filter((i) => !i.alt).length,
+    /*
+      Images showing something, with nothing said about what. An <img> with no
+      source at all is exempt because it isn't showing anything yet — the
+      gallery lightbox ships an empty one and fills in both src and alt from
+      the tile that opened it, and once open it is covered by this again.
+    */
+    imagesNoAlt: [...document.images]
+      .filter((i) => i.getAttribute('src') || i.currentSrc)
+      .filter((i) => !i.alt).length,
     /*
       Reveal targets currently sitting at opacity 0. Below the fold that is
       normal — the tween hasn't run yet. With JS off or reduced motion on it is
@@ -280,11 +289,40 @@ try {
       const slug =
         (route === '/' ? 'home' : route.replace(/^\//, '').replace(/\//g, '-')) +
         `-${width}` +
+        (flag('full') ? '-full' : '') +
         (flag('bottom') ? '-bottom' : '') +
         (flag('reduced') ? '-reduced' : '') +
         (flag('no-js') ? '-nojs' : '');
 
-      const shot = await page.send('Page.captureScreenshot', { format: 'png' });
+      /*
+        `--full` captures past the viewport, which is the only way to look at a
+        long page in one picture. Two things have to be dealt with first, or the
+        picture lies about the page:
+
+        Lazy images below the fold were never near the viewport, so they have no
+        pixels — a gallery would photograph as three images and a large hole.
+        Promoting them to eager and waiting on `decode()` fills them in.
+
+        And with motion on, everything below the fold is still at its
+        pre-animation state, because the reveals fire on scroll. So pair this
+        with `--reduced` or `--no-js`, where nothing is hidden in the first
+        place.
+      */
+      if (flag('full')) {
+        await page.send('Runtime.evaluate', {
+          expression: `Promise.all([...document.images].map((img) => {
+            img.loading = 'eager';
+            return img.decode().catch(() => {});
+          }))`,
+          awaitPromise: true,
+        });
+        await sleep(1200);
+      }
+
+      const shot = await page.send('Page.captureScreenshot', {
+        format: 'png',
+        captureBeyondViewport: flag('full'),
+      });
       fs.writeFileSync(path.join(OUT, `${slug}.png`), Buffer.from(shot.data, 'base64'));
 
       // Nothing may be hidden when the thing that unhides it can't run.

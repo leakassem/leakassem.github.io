@@ -325,18 +325,181 @@
     text-decoration: none;
   }
 
-  .project-card img {
+  /*
+    Both things on the site that are a picture inside a link. One rule, so a
+    gallery tile and a project card can't drift into answering a hover
+    differently.
+  */
+  .project-card img,
+  .gallery-item img {
     transition: transform 700ms var(--ease-quiet);
   }
 
   .project-card:hover img,
-  .project-card:focus-visible img {
+  .project-card:focus-visible img,
+  .gallery-item:hover img,
+  .gallery-item:focus-visible img {
     transform: scale(1.03);
   }
 
   .project-card:hover .project-card-title {
     text-decoration: underline;
     text-decoration-thickness: var(--spacing-hair);
+    text-underline-offset: 0.3em;
+  }
+
+  /* ---------------------------------------------------------- project detail */
+
+  /*
+    Rows separated by hairlines — the project metadata block and the role list
+    on `/work/[slug]`. Her sheets set `PROJECT DETAILS` and `PROJECT ROLE` as
+    plain stacks of short lines, and a hairline between them is the only rule
+    this site has.
+
+    Type comes from the utility classes at the call site, as it does on
+    `.project-card`; this owns the structure only.
+  */
+  .rule-list {
+    border-bottom: var(--spacing-hair) solid var(--color-hairline-soft);
+  }
+
+  .rule-list > * {
+    border-top: var(--spacing-hair) solid var(--color-hairline-soft);
+    padding-block: 0.875rem;
+  }
+
+  /*
+    Term beside value rather than above it, once the column is wide enough to
+    read as two columns. Proportional rather than a fixed first column, so it
+    stays right whether it is in a third of the page or the whole of it.
+  */
+  @media (min-width: 30rem) {
+    .rule-list-split > * {
+      display: grid;
+      grid-template-columns: 2fr 3fr;
+      gap: 1.5rem;
+      align-items: baseline;
+    }
+  }
+
+  /*
+    A gallery tile: a link whose content is a picture. It is a link and not a
+    button because it points at the image file, which is what a reader without
+    JavaScript gets when they click it — the lightbox is the enhanced path to
+    the same photograph, not the only one.
+  */
+  .gallery-item {
+    display: block;
+    cursor: zoom-in;
+  }
+
+  /* ------------------------------------------------------------- lightbox */
+
+  /*
+    The gallery lightbox — the site's only dark surface.
+
+    A native <dialog>, so `showModal()` supplies the top layer, the focus trap
+    and Escape, none of which is reimplemented here. The dialog itself fills the
+    viewport and carries the scrim, rather than the scrim living on
+    `::backdrop`: a pseudo-element that has only recently begun inheriting
+    custom properties would need this colour written out a second time, and a
+    colour written twice is a colour that can disagree with itself.
+  */
+  .lightbox {
+    max-width: 100vw;
+    max-height: 100svh;
+    width: 100vw;
+    height: 100svh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: color-mix(in srgb, var(--color-ink) 94%, transparent);
+    color: var(--color-paper);
+  }
+
+  /* `display` is what a closed dialog is hidden with, so this must be gated. */
+  .lightbox[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .lightbox::backdrop {
+    background-color: transparent;
+  }
+
+  .lightbox-frame {
+    display: flex;
+    flex: 1;
+    /* Or the frame refuses to shrink below the image and the bar is pushed off. */
+    min-height: 0;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-gutter);
+  }
+
+  /* Contained, not covered: the lightbox is where a cropped tile is shown whole. */
+  .lightbox-frame img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .lightbox-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 var(--spacing-gutter) var(--spacing-gutter);
+  }
+
+  /*
+    Words rather than arrow glyphs: this site has no icon set, and "Previous"
+    needs no label attribute to be announced correctly.
+  */
+  .lightbox-button {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--spacing-tap);
+    padding-inline: 1rem;
+    /* Mixed from the text colour, so the dark surface adds no seventh colour. */
+    border: var(--spacing-hair) solid
+      color-mix(in srgb, currentColor 35%, transparent);
+    color: currentColor;
+    font-size: var(--text-label);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    line-height: 1.2;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 200ms var(--ease-quiet);
+  }
+
+  .lightbox-button:hover {
+    border-color: currentColor;
+  }
+
+  /* The page's focus ring is ink, which is invisible on the dark surface. */
+  .lightbox :focus-visible {
+    outline: 2px solid var(--color-paper);
+    outline-offset: 3px;
+  }
+
+  /*
+    Running copy inside a project's markdown body. Nothing renders through this
+    yet — every body is empty, because a description would have to come from Lea
+    (open item 9 in work.md). It exists so that when she writes one, it is a
+    content drop rather than a template change.
+  */
+  .rich-text > * + * {
+    margin-top: 1.25rem;
+  }
+
+  .rich-text a {
+    text-decoration: underline;
     text-underline-offset: 0.3em;
   }
 
@@ -513,5 +676,18 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /*
+    View transitions need saying separately: the pseudo-elements a transition
+    animates are not descendants of anything, so `*` above never reaches them.
+    Without this the page cross-fade and the hero's move would both still run
+    under `prefers-reduced-motion` — the one exception hard rule 5 doesn't allow.
+    Navigation still works; it just cuts rather than moves.
+  */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

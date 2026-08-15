@@ -40,6 +40,13 @@ interface Props {
   reveal?: boolean;
   /** Scroll-linked drift as a percentage. Hero imagery only, never text. */
   parallax?: number;
+  /**
+   * `view-transition-name` for the clip box, so this picture morphs into the
+   * same picture on the next page rather than cross-fading with it. Must be
+   * unique within the page — `transitionNameOf()` in `src/lib/projects.ts` is
+   * where both ends of a project's pair get their name.
+   */
+  transitionName?: string;
   class?: string;
 }
 
@@ -52,6 +59,7 @@ const {
   priority = false,
   reveal,
   parallax,
+  transitionName,
   class: className = '',
 }: Props = Astro.props;
 
@@ -76,11 +84,18 @@ const revealing = reveal ?? !drifts;
 const pictureClass = drifts
   ? 'absolute inset-x-0 top-[-12%] h-[124%] w-full'
   : undefined;
+
+const style = [
+  `aspect-ratio: ${ratio ?? `${src.width}/${src.height}`};`,
+  transitionName && `view-transition-name: ${transitionName};`,
+]
+  .filter(Boolean)
+  .join(' ');
 ---
 
 <div
   class:list={['media', className]}
-  style={`aspect-ratio: ${ratio ?? `${src.width}/${src.height}`};`}
+  style={style}
   data-reveal={revealing ? 'image' : undefined}
 >
   <Picture

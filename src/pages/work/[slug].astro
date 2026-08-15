@@ -1,0 +1,382 @@
+---
+import { render } from 'astro:content';
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/Container.astro';
+import Grid from '../../components/Grid.astro';
+import Media from '../../components/Media.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import Section from '../../components/Section.astro';
+import {
+  areaLabel,
+  getProjects,
+  locationOf,
+  nextProject,
+  placeOf,
+  scopesOf,
+  statusLabel,
+  studioOf,
+  transitionNameOf,
+  typeLabel,
+  type Project,
+} from '../../lib/projects';
+
+/*
+  One project. This template renders all 17 — nothing here is per-project, and
+  no project page is ever hand-written.
+
+  The shape is her sheet's: a text column on the left, images on the right,
+  hairline-separated metadata rows, and the role listed as the sheet lists it.
+  Where a sheet covers only part of a property, that stays visible: `scopesOf`
+  keeps one block per sheet, so "70 m² reception" and "50 m² media room, guest
+  bedroom and home office" read as the two different jobs they were rather than
+  as one flattened list.
+
+  The gallery's lightbox is enhancement. Each tile is a link to the image file,
+  so with JavaScript off it still opens the photograph at full size; the script
+  intercepts the click and shows it in a <dialog> instead, which is what buys
+  the focus trap and the Escape key without writing either.
+*/
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: Project;
+}
+
+const { project }: Props = Astro.props;
+
+const { title, hero, gallery, development } = project.data;
+const scopes = scopesOf(project);
+const studio = studioOf(project);
+const next = await nextProject(project);
+
+// Present so that copy Lea writes later (open item 9) appears without a code
+// change. Every body is empty today, which is why the block is conditional.
+const { Content } = await render(project);
+const hasBody = Boolean(project.body?.trim());
+
+/*
+  The metadata block, her sheets' PROJECT DETAILS. Rows whose fact the brief
+  never states are absent rather than filled with a guess — which is why this is
+  a filtered list and not a fixed six rows.
+*/
+const details = [
+  { term: 'Location', value: locationOf(project) },
+  { term: 'Development', value: development },
+  { term: 'Type', value: typeLabel(project.data.type) },
+  { term: 'Area', value: areaLabel(project) },
+  { term: 'Status', value: statusLabel(project.data.status) },
+  { term: 'Studio', value: `${studio.name} · ${studio.period}` },
+].filter((row): row is { term: string; value: string } => Boolean(row.value));
+---
+
+<BaseLayout
+  title={`${title} — Lea Kassem`}
+  description={`${typeLabel(project.data.type)} interior in ${placeOf(project)}${
+    areaLabel(project) ? `, ${areaLabel(project)}` : ''
+  } — by Lea Kassem.`}
+>
+  <!-- ------------------------------------------------------------ project -->
+  <Section label="Project" divider>
+    <Container>
+      <Grid cols={12} gap="default">
+        <div class="col-span-4 md:col-span-5">
+          <p class="label text-muted" data-reveal>{placeOf(project)}</p>
+
+          <h1 class="font-display text-headline mt-4" data-reveal="heading">
+            {title}
+          </h1>
+
+          <dl class="rule-list rule-list-split mt-block" data-reveal>
+            {
+              details.map((row) => (
+                <div>
+                  <dt class="label text-muted">{row.term}</dt>
+                  <dd class="text-small">{row.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+
+        <!--
+          Same image, same 2:1 crop and the same transition name as the card
+          this page was reached from, so the picture moves into place rather
+          than fading. Which means no entrance reveal here: a reveal would hold
+          it at opacity 0 at exactly the moment the transition snapshots it.
+        -->
+        <div class="col-span-4 md:col-span-7">
+          {
+            hero && (
+              <Media
+                src={hero.src}
+                alt={hero.alt}
+                ratio="2/1"
+                sizes="(min-width: 90rem) 47rem, (min-width: 768px) 55vw, 100vw"
+                priority
+                reveal={false}
+                transitionName={transitionNameOf(project)}
+              />
+            )
+          }
+        </div>
+      </Grid>
+
+      {
+        hasBody && (
+          <div class="rich-text text-body max-w-text mt-block" data-reveal>
+            <Content />
+          </div>
+        )
+      }
+    </Container>
+  </Section>
+
+  <!-- --------------------------------------------------------------- role -->
+  <Section tone="paper" label="Role" divider>
+    <Container>
+      <Grid cols={12} gap="default">
+        <h2
+          class="font-display text-headline col-span-4 md:col-span-4"
+          data-reveal="heading"
+        >
+          Project role
+        </h2>
+
+        <div class="col-span-4 md:col-span-7 md:col-start-6">
+          {
+            scopes.map((scope, index) => (
+              <div class={index > 0 ? 'mt-block' : ''} data-reveal>
+                {scope.rooms && (
+                  <h3 class="font-display text-title">{scope.rooms}</h3>
+                )}
+
+                {(scope.area || scope.status) && (
+                  <p class="label text-muted mt-3">
+                    {[scope.area, scope.status].filter(Boolean).join(' · ')}
+                  </p>
+                )}
+
+                <ul class:list={['rule-list', (scope.rooms || scope.area) && 'mt-6']}>
+                  {scope.role.map((item) => (
+                    <li class="text-small">{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
+      </Grid>
+    </Container>
+  </Section>
+
+  <!-- ------------------------------------------------------------- images -->
+  {
+    gallery.length > 0 && (
+      <Section label="Images" divider>
+        <Container>
+          <p class="label text-muted" data-reveal>
+            {gallery.length} images
+          </p>
+          <h2 class="font-display text-headline mt-4" data-reveal="heading">
+            Gallery
+          </h2>
+
+          {/*
+            Each tile links to the image file itself. With JavaScript off that
+            is the whole feature — the photograph opens at full size. With it,
+            the script below calls preventDefault and shows the same file in
+            the dialog instead. The accessible name of each link is the image's
+            own alt text, so nothing describes it twice.
+
+            Tiles are 4:3 because that is where the crops actually sit: the
+            middle half of the 113 gallery images falls between 1.28 and 1.54,
+            median 1.42. The 21 portrait crops are cropped here and shown whole
+            in the lightbox.
+          */}
+          <Grid cols={3} gap="seam" stagger as="ul" class="mt-section">
+            {gallery.map((image, index) => (
+              <li>
+                <a
+                  href={image.src.src}
+                  class="gallery-item"
+                  data-lightbox-open
+                  data-index={index}
+                >
+                  <Media
+                    src={image.src}
+                    alt={image.alt}
+                    ratio="4/3"
+                    sizes="(min-width: 1024px) 28rem, (min-width: 640px) 45vw, 100vw"
+                    reveal={false}
+                  />
+                </a>
+              </li>
+            ))}
+          </Grid>
+        </Container>
+
+        {/*
+          A native <dialog>, which is what makes this small: showModal() traps
+          focus and Escape closes, so there is no focus trap or key handler of
+          our own to get wrong. Empty until opened, and display:none while
+          closed, so nothing here loads for a reader who never opens it.
+        */}
+        <dialog class="lightbox" data-lightbox aria-label={`${title} — images`}>
+          <div class="lightbox-frame">
+            <img data-lightbox-image alt="" />
+          </div>
+
+          <div class="lightbox-bar">
+            <p class="label" data-lightbox-count></p>
+
+            <div class="flex flex-wrap gap-2">
+              <button type="button" class="lightbox-button" data-lightbox-prev>
+                Previous
+              </button>
+              <button type="button" class="lightbox-button" data-lightbox-next>
+                Next
+              </button>
+              <button
+                type="button"
+                class="lightbox-button"
+                data-lightbox-close
+                autofocus
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </dialog>
+      </Section>
+    )
+  }
+
+  <!-- --------------------------------------------------------------- next -->
+  <Section tone="paper" label="Next" divider>
+    <Container>
+      <div class="gap-block flex flex-wrap items-end justify-between">
+        <h2 class="font-display text-headline" data-reveal="heading">
+          Next project
+        </h2>
+
+        <a href="/work" class="link-rule" data-reveal>All work</a>
+      </div>
+
+      <div class="max-w-text mt-section">
+        <ProjectCard
+          project={next}
+          sizes="(min-width: 42rem) 42rem, 100vw"
+          headingLevel={3}
+        />
+      </div>
+    </Container>
+  </Section>
+
+  <script>
+    import { setScrollLocked } from '../../scripts/motion';
+
+    /*
+      The gallery lightbox. Enhancement only: without it every tile is still a
+      link to its own image file, which is a working way to see a photograph at
+      full size.
+
+      Nearly all of the behaviour is the browser's. <dialog>.showModal() puts
+      the dialog in the top layer, traps focus inside it and closes on Escape;
+      what is left here is choosing which image is showing, returning focus to
+      the tile that was clicked, and stopping the page behind from scrolling.
+    */
+    function initLightbox() {
+      const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox]');
+      const image = dialog?.querySelector<HTMLImageElement>('[data-lightbox-image]');
+      const counter = dialog?.querySelector<HTMLElement>('[data-lightbox-count]');
+      const tiles = [
+        ...document.querySelectorAll<HTMLAnchorElement>('[data-lightbox-open]'),
+      ];
+
+      if (!dialog || !image || !counter || tiles.length === 0) return;
+      // No <dialog> support: leave the tiles as the plain links they already are.
+      if (typeof dialog.showModal !== 'function') return;
+
+      let index = 0;
+      let opener: HTMLAnchorElement | null = null;
+
+      /** Wraps in both directions, so Next never dead-ends on the last image. */
+      const show = (next: number) => {
+        index = (next + tiles.length) % tiles.length;
+        const tile = tiles[index]!;
+
+        image.src = tile.href;
+        // The tile's own alt text, so the enlarged image is described exactly
+        // as the thumbnail was rather than twice, differently.
+        image.alt = tile.querySelector('img')?.alt ?? '';
+        counter.textContent = `${index + 1} / ${tiles.length}`;
+      };
+
+      for (const tile of tiles) {
+        tile.addEventListener('click', (event) => {
+          // A modified click means the reader asked for a new tab or a saved
+          // file. The link does that correctly, so let it.
+          if (
+            event.button !== 0 ||
+            event.metaKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey
+          ) {
+            return;
+          }
+
+          event.preventDefault();
+          opener = tile;
+          show(tiles.indexOf(tile));
+          dialog.showModal();
+          setScrollLocked(true);
+        });
+      }
+
+      dialog.addEventListener('keydown', (event) => {
+        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+        event.preventDefault();
+        show(index + (event.key === 'ArrowRight' ? 1 : -1));
+      });
+
+      // The backdrop is the dialog element itself; anything visible is a child
+      // of it, so a click landing on the dialog is a click outside the image.
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
+      });
+
+      // Fires for Escape as well as for the close button, so focus comes back
+      // to the tile however the dialog was dismissed.
+      dialog.addEventListener('close', () => {
+        setScrollLocked(false);
+        opener?.focus();
+        opener = null;
+      });
+
+      dialog
+        .querySelector('[data-lightbox-prev]')
+        ?.addEventListener('click', () => show(index - 1));
+      dialog
+        .querySelector('[data-lightbox-next]')
+        ?.addEventListener('click', () => show(index + 1));
+      dialog
+        .querySelector('[data-lightbox-close]')
+        ?.addEventListener('click', () => dialog.close());
+    }
+
+    initLightbox();
+    // View transitions swap the document without reloading it, and the browser
+    // will not re-run a module script it has already run. Fires only on a
+    // client-side navigation, so this can't double-run on first load.
+    document.addEventListener('astro:after-swap', initLightbox);
+  </script>
+</BaseLayout>

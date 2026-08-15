@@ -1,10 +1,10 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Container from '../components/Container.astro';
-import Grid from '../components/Grid.astro';
-import ProjectCard from '../components/ProjectCard.astro';
-import Section from '../components/Section.astro';
-import { countryOf, facetsOf, getProjects, type Project } from '../lib/projects';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Container from '../../components/Container.astro';
+import Grid from '../../components/Grid.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import Section from '../../components/Section.astro';
+import { countryOf, facetsOf, getProjects, type Project } from '../../lib/projects';
 
 /*
   The work index: all 17 projects, filterable by type, location and status.
@@ -250,12 +250,20 @@ const filterCss = `${hideRules}\n\n${emptyRule}`;
 
       It reads the groups and values out of the DOM rather than holding its own
       copy of the vocabulary, so adding a facet needs no change here.
-    */
-    const form = document.querySelector<HTMLFormElement>('[data-filters]');
-    const count = document.querySelector<HTMLElement>('[data-filter-count]');
-    const cards = [...document.querySelectorAll<HTMLElement>('.work-card')];
 
-    if (form && count) {
+      Wrapped in a function and re-run on `astro:after-swap` because view
+      transitions (step 7) swap the document without reloading it, and the
+      browser will not execute a module script it has already run. Without this
+      the filters would still work — they are CSS — but a second visit to
+      /work would lose the query string and the spoken count.
+    */
+    function initFilters() {
+      const form = document.querySelector<HTMLFormElement>('[data-filters]');
+      const count = document.querySelector<HTMLElement>('[data-filter-count]');
+      const cards = [...document.querySelectorAll<HTMLElement>('.work-card')];
+
+      if (!form || !count) return;
+
       const groups = [...form.querySelectorAll<HTMLElement>('[data-filter-group]')].map(
         (fieldset) => fieldset.dataset.filterGroup!,
       );
@@ -274,7 +282,18 @@ const filterCss = `${hideRules}\n\n${emptyRule}`;
         const chosen = selection();
         const query = new URLSearchParams(chosen).toString();
 
-        history.replaceState(null, '', query ? `?${query}` : location.pathname);
+        /*
+          `history.state` is passed through rather than replaced with null.
+          The view transitions router keeps its own bookkeeping there, and a
+          popstate carrying no state is one it decides isn't its to handle — so
+          writing null here left the back button changing the URL and nothing
+          else. Only the URL is this script's business.
+        */
+        history.replaceState(
+          history.state,
+          '',
+          query ? `?${query}` : location.pathname,
+        );
 
         const shown = showing();
         count.textContent =
@@ -300,5 +319,9 @@ const filterCss = `${hideRules}\n\n${emptyRule}`;
       form.addEventListener('reset', () => window.setTimeout(sync));
       sync();
     }
+
+    initFilters();
+    // Fires only on a client-side navigation, so this can't double-run on load.
+    document.addEventListener('astro:after-swap', initFilters);
   </script>
 </BaseLayout>

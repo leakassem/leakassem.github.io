@@ -49,16 +49,28 @@ terminal:
 
 ```bash
 node scripts/shoot.mjs                 # every main route at 375 / 768 / 1440
+node scripts/shoot.mjs --all           # every route in dist/, project pages included
 node scripts/shoot.mjs /work --bottom  # one route, scrolled to the footer
 node scripts/shoot.mjs --no-js         # JavaScript disabled
 node scripts/shoot.mjs --reduced       # prefers-reduced-motion: reduce
+node scripts/shoot.mjs /work --full    # the whole page, not just one screen
 ```
 
 PNGs land in `.shots/` (gitignored) and every shot prints its measurements. It
 exits non-zero on horizontal overflow, a header row that doesn't fit, an image
-with no `alt`, or — under `--no-js` / `--reduced` — any reveal target still at
-`opacity: 0`. Prefer this over `chrome --headless --window-size`, which Windows
-silently clamps to about 500px wide, so a "375px" shot is a lie.
+that has a source but no `alt`, or — under `--no-js` / `--reduced` — any reveal
+target still at `opacity: 0`. Prefer this over `chrome --headless
+--window-size`, which Windows silently clamps to about 500px wide, so a "375px"
+shot is a lie.
+
+**Pair `--full` with `--reduced` or `--no-js`.** A full-page capture forces every
+lazy image to load first, but it can't make below-the-fold reveals fire — those
+wait on scroll — so with motion on, a full shot photographs half the page at
+`opacity: 0` and implies a bug that isn't there.
+
+`--all` is the one that covers the 17 project pages; the default four routes
+don't. `/styleguide` is only in `--all` too, which is why an overflow that had
+been in it since step 2 wasn't found until step 7.
 
 **In Git Bash, prefix a route argument with `MSYS_NO_PATHCONV=1`** — otherwise
 `/work` is rewritten to `C:/Program Files/Git/work` before Node sees it, the
@@ -122,12 +134,34 @@ adding anything visual, and update it when the system changes.
   `.link-rule` (the site's only button-like link) and `.project-card`. All are
   on `/styleguide` under **Components**.
 - **`/work` filters in CSS, not JavaScript.** Each facet is a radio group, and
-  `src/pages/work.astro` generates one rule per option — plus the selectors for
-  the combinations that match nothing — from the project data itself. So the
-  filters work with JS off, they combine, `type="reset"` clears them, and no
-  rule can disagree with the content. The script on that page is enhancement
-  only: it mirrors the selection into the query string and announces the count.
-  Don't replace this with client-side rendering.
+  `src/pages/work/index.astro` generates one rule per option — plus the
+  selectors for the combinations that match nothing — from the project data
+  itself. So the filters work with JS off, they combine, `type="reset"` clears
+  them, and no rule can disagree with the content. The script on that page is
+  enhancement only: it mirrors the selection into the query string and
+  announces the count. Don't replace this with client-side rendering.
+- **`/work/[slug]` is one template for all 17 projects.** Metadata rows and the
+  role list are `.rule-list`; the role list is one block per source sheet
+  (`scopesOf`), so a project covering only a reception and a media room says so
+  rather than flattening into one list. The gallery's lightbox is enhancement:
+  every tile is a link to the image file, and the script intercepts the click to
+  show that same file in a native `<dialog>`. **Keep it a link, never a button**
+  — the link is what a reader with JS off gets, and `showModal()` is where the
+  focus trap and the Escape key come from rather than from code of ours.
+- **View transitions are on, site-wide** (`ClientRouter` in `BaseLayout`). Three
+  consequences worth knowing before touching anything client-side:
+  - **A page script must re-run on `astro:after-swap`.** The browser will not
+    re-execute a module script it has already run, so a page-level script that
+    only runs at module scope works once and then silently stops. `/work` and
+    `/work/[slug]` both wrap their setup in a function and call it again there.
+  - **Never write `history.replaceState(null, …)`.** The router keeps its
+    bookkeeping in `history.state`, and a popstate carrying no state is one it
+    won't handle — which breaks the back button, changing the URL and nothing
+    else. Pass `history.state` through.
+  - **The swap copies root attributes off the incoming document**, taking the
+    `.motion` class with them. `armMotionGate()` puts it back on that document
+    before it lands; without it every navigation after the first arrives with
+    nothing hidden and so nothing to animate.
 - **Motion is opt-in by data attribute**, never a hand-written tween in a page:
 
   | Attribute | Effect |
@@ -158,10 +192,10 @@ adding anything visual, and update it when the system changes.
   named for its slug, never hand-written HTML per project. The schema is
   `src/content.config.ts`; the filter vocabularies (type, status, country,
   city, studio) are `src/lib/facets.ts`; every derived value — country, area,
-  role list, facet counts — comes from a helper in `src/lib/projects.ts`.
-  **Pages read through those helpers**, never straight from
-  `entry.data.sections`, so how a project's area is assembled stays one
-  decision in one place.
+  role list, facet counts, a project's href and its view-transition name —
+  comes from a helper in `src/lib/projects.ts`. **Pages read through those
+  helpers**, never straight from `entry.data.sections`, so how a project's area
+  is assembled stays one decision in one place.
 - **Nothing in a project file is editorial.** Every field traces to
   `docs/BRIEF.md` §4. Where the brief states no fact, the field is absent —
   don't invent completion years, client names or descriptions.

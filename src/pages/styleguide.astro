@@ -184,18 +184,24 @@ const gridDemo = [
         probably shouldn't be.
       </p>
 
+      <!--
+        Each row wraps, and its name column is only fixed once there is room
+        for one. A 224px column beside a swatch up to 128px wide and a line of
+        text does not fit in the ~300px a 375px screen leaves — this page was
+        the last one never measured at that width.
+      -->
       <div class="mt-block space-y-5">
         {
           spacing.map((step) => (
-            <div class="flex items-center gap-6">
-              <div class="w-56 shrink-0">
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+              <div class="w-full shrink-0 sm:w-56">
                 <p class="label">{step.token.replace('--spacing-', '')}</p>
                 <p class="text-small text-muted">
                   <code data-token={step.token}>{step.fallback}</code>
                 </p>
               </div>
               <div class:list={['bg-ink h-6 shrink-0', step.class]} />
-              <p class="text-small text-muted">{step.use}</p>
+              <p class="text-small text-muted min-w-0">{step.use}</p>
             </div>
           ))
         }
@@ -455,6 +461,104 @@ const gridDemo = [
             </div>
           )
         }
+      </div>
+
+      <div class="mt-block">
+        <p class="label text-muted">Hairline rows — .rule-list</p>
+        <p class="text-small text-muted mt-2 max-w-text">
+          The project metadata block and the role list on a project page. Her
+          sheets set <code>PROJECT DETAILS</code> and <code>PROJECT ROLE</code>
+          as plain stacks of short lines, and the one rule this site has is what
+          separates them. Add <code>.rule-list-split</code> for term beside
+          value — proportional columns, so it reads the same in a third of the
+          page as in all of it, and it stacks below 30rem where two columns stop
+          fitting. Type comes from the utilities at the call site, as it does on
+          the project card.
+        </p>
+
+        <div class="mt-4 grid gap-block sm:grid-cols-2">
+          <dl class="rule-list rule-list-split">
+            <div>
+              <dt class="label text-muted">Location</dt>
+              <dd class="text-small">Baabda, Lebanon</dd>
+            </div>
+            <div>
+              <dt class="label text-muted">Area</dt>
+              <dd class="text-small">370 m²</dd>
+            </div>
+            <div>
+              <dt class="label text-muted">Status</dt>
+              <dd class="text-small">Completed</dd>
+            </div>
+          </dl>
+
+          <ul class="rule-list">
+            <li class="text-small">Architecture layout &amp; design</li>
+            <li class="text-small">Design drawings</li>
+            <li class="text-small">Furniture selection &amp; customisation</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-block">
+        <p class="label text-muted">Gallery tile and lightbox — .gallery-item + .lightbox</p>
+        <p class="text-small text-muted mt-2 max-w-text">
+          A tile is a link to the image file, never a button — so with
+          JavaScript off, clicking it still opens the photograph at full size.
+          The script on a project page intercepts that click and shows the same
+          file in a native <code>&lt;dialog&gt;</code> instead, which is where
+          the focus trap and the Escape key come from rather than from code of
+          ours. Arrow keys step through, and closing returns focus to the tile
+          that was opened. The tile below is a real one; the buttons are the
+          lightbox's own chrome, shown here on its dark surface — the only dark
+          surface on the site, and it introduces no colour of its own.
+        </p>
+
+        <div class="mt-4 grid gap-block sm:grid-cols-2">
+          <a href="/styleguide" class="gallery-item">
+            <Media
+              src={k1Kitchen}
+              alt="Show kitchen with red dining chairs at a white table on a timber floor"
+              ratio="4/3"
+              sizes="(min-width: 640px) 22rem, 100vw"
+            />
+          </a>
+
+          <div
+            class="lightbox-bar bg-ink text-paper self-start"
+            style="padding: 1rem;"
+          >
+            <p class="label" >3 / 15</p>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" class="lightbox-button">Previous</button>
+              <button type="button" class="lightbox-button">Next</button>
+              <button type="button" class="lightbox-button">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-block">
+        <p class="label text-muted">Running copy — .rich-text</p>
+        <p class="text-small text-muted mt-2 max-w-text">
+          Paragraph rhythm for markdown rendered out of a project's body.
+          Nothing on the site renders through this yet: every project body is
+          empty, because a description would have to come from Lea and
+          inventing one breaks the tone rules. It exists so that when she
+          writes one, it is a content drop and not a template change — open
+          item 9 in <code>work.md</code>.
+        </p>
+        <div class="rich-text text-body max-w-text mt-4">
+          <p>
+            The brief was a family reception that could seat fourteen without
+            being rearranged, and read as one room from the entrance.
+          </p>
+          <p>
+            Joinery was drawn to the existing soffit line so the ceiling could
+            stay untouched, which kept the mechanical works out of the
+            programme entirely.
+          </p>
+        </div>
       </div>
     </Container>
   </Section>

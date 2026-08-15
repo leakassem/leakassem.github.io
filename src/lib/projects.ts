@@ -6,6 +6,7 @@ import {
   PROJECT_STATUSES,
   PROJECT_TYPES,
   STATUS_LABELS,
+  STUDIO_PERIODS,
   STUDIOS,
   TYPE_LABELS,
   type Country,
@@ -47,17 +48,34 @@ export async function getFeaturedProjects(): Promise<Project[]> {
   return (await getProjects()).filter((project) => project.data.featured);
 }
 
+/** Where a project card links. No page writes this href itself. */
+export function hrefOf(project: Project): string {
+  return `/work/${project.id}`;
+}
+
 /**
- * Where a project card links.
+ * The project after this one, wrapping past the last back to the first.
  *
- * Detail pages are step 7. Until they exist every card lands on the work index
- * rather than a 404 — a nav link that 404s is worse than a thin page, and the
- * site is live. This is the one line that changes when step 7 lands, which is
- * why no page writes the href itself.
+ * Portfolio order, so "next" on the site is next in Lea's own sequence. The
+ * wrap is why it returns a project rather than `undefined` — a detail page
+ * always has somewhere to go on.
  */
-export function hrefOf(_project: Project): string {
-  // Step 7: return `/work/${_project.id}`;
-  return '/work';
+export async function nextProject(project: Project): Promise<Project> {
+  const projects = await getProjects();
+  const index = projects.findIndex((candidate) => candidate.id === project.id);
+  return projects[(index + 1) % projects.length]!;
+}
+
+/**
+ * The `view-transition-name` a project's hero carries, on the card it is
+ * clicked from and on the detail page it lands on.
+ *
+ * Both ends have to agree exactly or the image cross-fades instead of moving,
+ * so the name is derived here rather than written at either call site. Prefixed
+ * because a CSS identifier can't start with a digit and `3b-apartment` does.
+ */
+export function transitionNameOf(project: Project): string {
+  return `project-${project.id}`;
 }
 
 /* --------------------------------------------------------------- derivation */
@@ -100,11 +118,21 @@ export function areaOf(project: Project): number | undefined {
   return areas.length > 0 ? areas.reduce((total, area) => total + area, 0) : undefined;
 }
 
+/**
+ * A number of square metres ready to print.
+ *
+ * The space is non-breaking, written as an escape rather than typed: "240 m²"
+ * must never wrap between the number and its unit, and an invisible character
+ * sitting in the source is the kind of thing that gets deleted by accident.
+ */
+function squareMetres(area: number): string {
+  return `${area}\u00a0m²`;
+}
+
 /** Area ready to print, or undefined. */
 export function areaLabel(project: Project): string | undefined {
   const area = areaOf(project);
-  // Non-breaking space — "240 m²" must never wrap between number and unit.
-  return area === undefined ? undefined : `${area} m²`;
+  return area === undefined ? undefined : squareMetres(area);
 }
 
 /**
@@ -117,20 +145,44 @@ export function totalAreaOf(projects: Project[]): number {
   return projects.reduce((total, project) => total + (areaOf(project) ?? 0), 0);
 }
 
-/** Rooms covered, one entry per sheet that names them. */
-export function roomsOf(project: Project): string[] {
-  return project.data.sections
-    .map((section) => section.rooms)
-    .filter((rooms): rooms is string => Boolean(rooms));
+/** One sheet's worth of the project, ready to print. */
+export interface Scope {
+  /** Rooms this sheet covers. Absent when it covers the whole property. */
+  rooms?: string;
+  /** This part's own area, when the sheets state it per part rather than overall. */
+  area?: string;
+  /** Only when this part's status differs from the project's — Qatar villa's outdoor. */
+  status?: string;
+  /** What she did on this part, as the sheet lists it. */
+  role: string[];
 }
 
 /**
- * Every distinct role bullet across the project's sheets, in the order they
- * first appear. Multi-sheet projects repeat most of their bullets; the detail
- * page wants the union, not the repetition.
+ * The project broken into the parts its sheets describe.
+ *
+ * This is what the detail page renders instead of one flattened role list.
+ * AD villa is two sheets covering different rooms, with different areas and
+ * different roles — "70 m² reception" and "50 m² media room, guest bedroom and
+ * home office" is the fact, and a union of the bullets would lose which
+ * belonged to which. A project with one sheet gets one scope, which the page
+ * renders without a sub-heading.
+ *
+ * Replaced step 3's `roomsOf` and `rolesOf`: two helpers assembling the same
+ * material separately is exactly the contradiction this module exists to stop.
  */
-export function rolesOf(project: Project): string[] {
-  return [...new Set(project.data.sections.flatMap((section) => section.role))];
+export function scopesOf(project: Project): Scope[] {
+  return project.data.sections.map((section) => ({
+    rooms: section.rooms,
+    area: section.area === undefined ? undefined : squareMetres(section.area),
+    status: section.status === undefined ? undefined : statusLabel(section.status),
+    role: [...section.role],
+  }));
+}
+
+/** The studio she did the work at, with the years she was there. */
+export function studioOf(project: Project): { name: Studio; period: string } {
+  const name = project.data.studio as Studio;
+  return { name, period: STUDIO_PERIODS[name] };
 }
 
 export function statusLabel(status: ProjectStatus): string {

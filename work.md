@@ -12,15 +12,20 @@ To see where things stand: *"where are we"*.
 Every session updates this file before finishing, so it is always the current
 state of the project.
 
-> **Current step: 7 — Project detail** (`todo`). Home and `/work` are both live
-> and real. Step 10 was pulled forward and is done: the site is at
+> **Current step: 8 — About & contact** (`todo`). Every project now has its own
+> page and the site navigates as one piece: cards link to `/work/<slug>`, and
+> view transitions carry the hero image from the card into the page it opens.
+> Step 10 was pulled forward and is done: the site is at
 > **https://leakassem.github.io** and every push to `main` redeploys it. A step
 > isn't finished until it's pushed.
 >
-> Step 7 also owns two things left deliberately: project cards currently link to
-> `/work` rather than to a detail page — one line, `hrefOf()` in
-> `src/lib/projects.ts` — and the view transitions that will make filtering feel
-> like a swap rather than a page load.
+> **Read the view-transitions notes in `CLAUDE.md` before writing any
+> client-side script.** Since step 7 the whole site swaps documents rather than
+> reloading, which changes three things about page scripts, `history` and the
+> motion gate. Step 7 hit all three; two of them were silent.
+>
+> Step 8's blocking open items are **2** (which email to publish) and **4**
+> (residential-only vs the CV's claim of commercial work). Both need Lea.
 
 ---
 
@@ -75,6 +80,14 @@ state of the project.
 | 2026-08-15 | The filter rules and the empty-state selectors are **generated from the project data**, not written out | 11 hide rules and 16 empty-combination selectors is more than anyone will keep correct by hand, and half the combinations really are empty — no villas in Lebanon, no apartments in Qatar. Generated, they cannot disagree with the content. Enumerating empty pairs before triples takes 41 selectors down to 16 |
 | 2026-08-15 | Studio is **not** a filter on `/work`, though `docs/BRIEF.md` §5 lists it | Three groups already fill a phone screen. A fourth for two values that mostly restate the date range is more UI than it earns; `facetsOf()` still computes it, so adding it back is a one-line change |
 | 2026-08-15 | Project cards link to **`/work`** until step 7 exists | `hrefOf()` in `src/lib/projects.ts` is the only place that decides, so step 7 changes one line. The site is live, and a card that 404s is worse than one that lands on the index |
+| 2026-08-15 | A project's role is **one block per source sheet**, not a flattened union | The content model has said so since step 3; step 7 is where it shows. AD villa reads as "Reception area, 70 m²" and "Media room, guest bedroom & home office, 50 m²" with their own bullets, which is what she actually did. A union would print eleven bullets and lose which job each belonged to. `scopesOf()` replaces step 3's `roomsOf` and `rolesOf` — two helpers assembling the same material separately is the contradiction this module exists to stop |
+| 2026-08-15 | Gallery tiles are **4:3**, and the lightbox shows the image whole | Picked off the actual crops rather than by eye: the middle half of the 113 gallery images falls between 1.28 and 1.54, median 1.42. 21 are portrait and are cropped in the grid — which is the trade a tight aligned grid costs, and the reason the lightbox contains rather than covers |
+| 2026-08-15 | The lightbox is a **native `<dialog>`**, and every tile is **a link to the image file** | `showModal()` supplies the top layer, the focus trap and Escape, so none of that is reimplemented — the script only chooses which image is showing and returns focus. And because the tile is a link rather than a button, the JS-off baseline isn't a dead control: it opens the photograph at full size. Verified both ways |
+| 2026-08-15 | **View transitions on site-wide**, with a per-project transition name | `docs/BRIEF.md` §2 asks for it and the hero is the thing worth carrying: the card's image and the detail page's are the same file at the same 2:1 crop, so they morph rather than cross-fade. `transitionNameOf()` derives the name at both ends — prefixed, because a CSS identifier can't start with a digit and `3b-apartment` does. Cost is three new rules about client-side code, all now in `CLAUDE.md` |
+| 2026-08-15 | The detail hero gets **no entrance reveal** | It is above the fold, so there is no entrance to play — and a reveal would hold it at `opacity: 0` at exactly the moment the view transition snapshots it, turning the morph into a fade from nothing. Same reasoning as the home page's lead photograph |
+| 2026-08-15 | Reduced motion must disable **`::view-transition-*` explicitly** | The global guard is `*, *::before, *::after`, and a view transition's pseudo-elements are descendants of nothing, so `*` never reaches them. Without the extra rule both the page cross-fade and the hero's move would still run under `prefers-reduced-motion` — the one exception hard rule 5 doesn't allow |
+| 2026-08-15 | `src/pages/work.astro` moved to `src/pages/work/index.astro` | `/work` and `/work/[slug]` are one section and now read as one directory. Astro serves both either way; this is tidiness, and the only cost was import depth |
+| 2026-08-15 | The **studio is surfaced on the detail page**, with its years | It is the one fact `facetsOf()` computes that nothing rendered — step 6 deliberately left it out of the filters as a fourth chip group that wasn't worth the phone screen. A metadata row is where it belongs: useful context, no UI |
 
 ---
 
@@ -87,10 +100,10 @@ state of the project.
 | 3 | **Yafawi Design work.** Portfolio has nothing from her current role (Sep 2025–present, Europe). As-is the site implies she stopped working in Aug 2025. NDA? | Step 5, 6 | open |
 | 4 | **Residential only.** CV claims residential *and* commercial; every sheet is tabbed Residential. Get commercial work or drop the claim. | Step 8 | open |
 | 5 | ~~Where the repo lives.~~ Resolved 2026-08-14: Lea's own account. | — | done |
-| 6 | **3D designer credits.** Several sheets say "collaborated with the 3D designer". Check whether anyone needs crediting. | Step 7 | open |
+| 6 | **3D designer credits.** Several sheets say "collaborated with the 3D designer". Check whether anyone needs crediting. Since step 7 this line is **printed on the project pages** — it's a role bullet, rendered verbatim as the sheet states it, on 3B, Qatar villa and the others that carry it. So the question is now visible on the live site rather than sitting in the data: either a name goes alongside it or it stays as the sheet has it. | nothing — the bullet is the sheet's own wording | open |
 | 7 | ~~OneDrive syncing node_modules.~~ Closed 2026-08-14: path is local, not synced. The one `EPERM` was a transient lock and hasn't recurred. | — | done |
 | 8 | **Typeface is a stand-in.** Inter Variable is the closest open-licence match to the Helvetica-like grotesque in her sheets, but it isn't it. A licensed face (Neue Haas Grotesk, Helvetica Now) would be a closer match and costs money — a decision for Lea, not a technical one. Swapping is one `@font-face` block; see `src/assets/fonts/README.md`. | nothing — deferred | open |
-| 9 | **No written copy per project.** Every project page is metadata, role bullets and images — there is no description, because the PDF has none and inventing one breaks the tone rules. Two or three factual sentences per project from Lea (the brief, the constraint, what the space had to do) would lift the detail pages considerably. The markdown body of each file is already there for it. | nothing — pages work without it | open |
+| 9 | **No written copy per project.** Every project page is metadata, role bullets and images — there is no description, because the PDF has none and inventing one breaks the tone rules. Two or three factual sentences per project from Lea (the brief, the constraint, what the space had to do) would lift the detail pages considerably. Since step 7 the template **already renders the markdown body** through `.rich-text` when there is one, so this is a pure content drop: type the sentences under the frontmatter and they appear under the hero. | nothing — pages work without it | open |
 | 10 | **Which projects lead.** Re-picked in step 5 by looking at all 17 heroes: **AD villa, DIFC apartment, K1 villa, AZ triplex, Qatar villa, B11 apartment**, in portfolio order. Chosen for the strength of the photograph and a spread of country, studio and type — not floor area, which is what the first pass used. Separately, **3B apartment leads the home page** with the site's sharpest crop and is deliberately not in the six. Lea should confirm both. One `featured` flag per file, plus `LEAD` in `src/pages/index.astro`. | nothing — the page ships | open |
 | 11 | **Which photo leads each project.** The hero is one deliberate pick per project, in `HERO` in `scripts/crop-sheets.mjs` — chosen for being a perspective render of the main space rather than by size. Lea should confirm all 17. One line each to change, then re-run the script. | nothing — heroes work | open |
 | 12 | **A studio mark is burned into one image.** 3BF apartment's bathroom (`gallery-05.jpg`) carries a small "Design in Frame" logo in the pixels. Unlike the DIFC watermark there's no clean twin to fall back on, and it's the studio she did the work for, so it reads as a credit rather than a mistake — but it's the only image on the site carrying one. Either Lea supplies the unmarked original (open item 1 would cover it) or the image goes. | nothing — it renders fine | open |
@@ -642,7 +655,7 @@ silently shoots every default route instead of the one asked for. Needs
 
 ---
 
-### 7. Project detail — `todo`
+### 7. Project detail — `done`
 
 **Task:** build `/work/[slug]` — hero image, metadata block (area / location /
 status / type), role list, and an image gallery with a keyboard-accessible
@@ -651,7 +664,103 @@ continuous.
 
 **Done when:** all 17 detail pages generate, lightbox is keyboard-navigable.
 
-**Outcome:** _(fill in)_
+**Outcome:** all 17 project pages exist, from one template, and the site now
+navigates as one piece rather than as a set of documents.
+
+- **`src/pages/work/[slug].astro`** — four bands on step 2's primitives:
+  the project (place, title, metadata rows, hero at 2:1), the role, the gallery,
+  and the next project. `src/pages/work.astro` moved to `work/index.astro` so
+  the section is one directory.
+- **The role is one block per source sheet.** AD villa reads as "Reception area
+  · 70 m²" and "Media room, guest bedroom & home office · 50 m²", each with its
+  own bullets; Qatar villa's outdoor carries its own *under construction*
+  against a *completed* interior. `scopesOf()` in `src/lib/projects.ts` is the
+  one place that assembles it, and it replaced `roomsOf`/`rolesOf`, which were
+  built in step 3 for this and would have said the same thing twice.
+- **The metadata block is `.rule-list`** — hairline rows, term beside value
+  once the column is wide enough for two, stacked below 30rem. Rows whose fact
+  the brief never states are absent, so the list is a different length per
+  project rather than padded with guesses. `Development` appears only on the
+  four projects that have one; `Area` only where a sheet stated one.
+- **The gallery is a tight 3-up seam grid at 4:3**, and every tile is a **link
+  to its image file**. With JavaScript off that is the whole feature — the
+  photograph opens at full size. With it, a script shows the same file in a
+  native `<dialog>`: `showModal()` is where the focus trap and Escape come
+  from, so what is actually written here is which image is showing, arrow keys,
+  a counter, the backdrop click, and returning focus to the tile.
+- **`setScrollLocked()`** in `motion.ts` holds the page still behind the
+  lightbox. `overflow: hidden` alone isn't enough while Lenis is scrolling the
+  page itself, and Lenis is that module's business, not a page's.
+- **View transitions, site-wide.** `ClientRouter` in `BaseLayout`, and a
+  project's hero carries the same `view-transition-name` on the card and on the
+  page it opens — so the photograph moves into place instead of the page
+  cross-fading. `transitionNameOf()` derives it at both ends.
+- **`hrefOf()` now returns `/work/<slug>`** — the one line step 5 left for this,
+  which is why no page had to change to get its links.
+- **New in the design system:** `.rule-list` / `.rule-list-split`,
+  `.gallery-item`, the `.lightbox` family, and `.rich-text`. All rendered on
+  `/styleguide` under **Components**.
+- **`.rich-text` renders a project's markdown body when there is one.** Every
+  body is still empty — open item 9 — so the block is conditional. It exists so
+  that copy from Lea is a content drop and not a template change.
+- **`scripts/shoot.mjs` gained `--full`**, which captures past the viewport
+  after forcing every lazy image to load. Its no-alt check now exempts an
+  `<img>` with no source at all, which is what the lightbox ships until it is
+  opened.
+
+**Verified:** `npm run build` — 0 errors, 0 warnings, 0 hints; `astro check`
+clean across 24 files. 22 pages built. Read back out of the built HTML: all 17
+detail pages present, every internal href across all 22 pages resolves to a page
+that exists, every rendered image has alt text, no page has two elements
+claiming the same `view-transition-name` (17 on `/work`, 6 on home, 2 on a
+detail page).
+
+**Measured in Chrome at 375 / 768 / 1440 across all 22 routes**, then again with
+JavaScript disabled and again under `prefers-reduced-motion` — 198 shots, no
+failures, `hidden=0` throughout both baselines. Nothing scrolls sideways at any
+width.
+
+**Driven in Chrome with real clicks and keystrokes** — 36 checks, all passing.
+The gallery lays out in three columns with every image loading; a click opens
+the dialog as a true modal with the page behind locked; the counter tracks;
+ArrowLeft/ArrowRight step and wrap; the enlarged image fits the viewport whole;
+Escape closes, releases the lock and returns focus to the tile that opened it;
+Enter on a focused tile opens it; and Tab never reaches anything behind the
+modal. With JavaScript execution disabled the tiles are still links, the dialog
+stays `display: none`, and the link a tile points at returns HTTP 200.
+
+**Three bugs the browser found and the build could not:**
+
+1. **The back button was broken on `/work`.** Its filter script called
+   `history.replaceState(null, …)` to mirror the selection into the query
+   string, which wiped the router's own history state — so a popstate arrived
+   carrying nothing and the router treated it as not its to handle. The URL
+   changed and the document didn't. Passing `history.state` through fixes it.
+   Nothing about this is visible in the build, in the markup, or in a
+   screenshot; it needed a real back navigation.
+2. **Motion died after the first client-side navigation.** The `.motion` class
+   that gates every pre-animation state is added at runtime and lives on
+   `<html>`, and the swap copies root attributes off the incoming document —
+   taking it with them. Every page after the first arrived with nothing hidden
+   and therefore nothing to reveal. Content was visible, which is the safe
+   failure, but it was the whole design gone silently. `armMotionGate()` puts
+   the class on the incoming document before it lands.
+3. **A page script only runs once.** The browser will not re-execute a module
+   script it has already run, so `/work`'s filter enhancement and the lightbox
+   both stopped working on a second visit. Both now re-run on
+   `astro:after-swap`.
+
+Also fixed: `/styleguide` had scrolled sideways by 85px at 375px **since step
+2** — its spacing demo puts a 224px column, a swatch up to 128px and a line of
+text in one unwrapping row. It was never caught because the default route list
+doesn't include it and nothing had run `--all` at 375 before.
+
+**Not verified:** the animations still haven't been watched *in motion* — the
+screenshots are taken after everything has settled, and that now includes the
+view transition itself, which is only ever a mid-flight state. That a swapped-in
+page ends up in exactly the same state as the same page loaded fresh *is*
+checked (23 of 43 reveal targets shown, both ways). What nobody has seen is the
+hero actually travelling.
 
 ---
 

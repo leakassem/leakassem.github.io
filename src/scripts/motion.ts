@@ -49,27 +49,63 @@ const motionAllowed = () =>
   !prefersReducedMotion() &&
   document.documentElement.classList.contains('motion');
 
+/*
+  State that outlives a page.
+
+  With view transitions the document is swapped rather than reloaded, so this
+  module is only ever evaluated once while `initMotion` runs on every page.
+  Lenis and the GSAP ticker callback are therefore created once and kept; the
+  ScrollTriggers and SplitTexts belong to the page that made them and are torn
+  down before the swap.
+*/
+let lenis: Lenis | null = null;
+let splits: SplitText[] = [];
+
 /**
  * Smooth scroll, wired into ScrollTrigger so scroll-driven timelines stay in
  * sync with Lenis rather than the native scroll position.
  *
  * No-ops entirely under prefers-reduced-motion — smooth scrolling is itself a
  * motion effect and is a common migraine and vestibular trigger.
+ *
+ * Idempotent: calling it again returns the instance already running, so a
+ * client-side navigation doesn't stack a second ticker callback on the first.
  */
 export function initSmoothScroll() {
   if (prefersReducedMotion()) return null;
+  if (lenis) return lenis;
 
-  const lenis = new Lenis({
+  lenis = new Lenis({
     duration: 1.1,
     easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
   });
 
   lenis.on('scroll', ScrollTrigger.update);
 
-  gsap.ticker.add((time) => lenis.raf(time * 1000));
+  gsap.ticker.add((time) => lenis?.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
 
   return lenis;
+}
+
+/**
+ * Holds the page still behind something in the top layer — the gallery
+ * lightbox is the only caller.
+ *
+ * `overflow: hidden` alone isn't enough while Lenis is running, because Lenis
+ * scrolls the page itself in response to wheel and touch rather than letting
+ * the browser do it. Both have to stop, which is why this lives here: Lenis is
+ * this module's business and no page should be reaching for the instance.
+ *
+ * `scrollbar-gutter: stable` in global.css is what stops the lock from
+ * shifting the layout sideways.
+ */
+export function setScrollLocked(locked: boolean) {
+  document.documentElement.style.overflow = locked ? 'hidden' : '';
+
+  if (!lenis) return;
+  if (locked) lenis.stop();
+  else lenis.start();
 }
 
 /**
@@ -107,27 +143,31 @@ export function initHeadingReveals() {
   const targets = gsap.utils.toArray<HTMLElement>('[data-reveal="heading"]');
 
   targets.forEach((el) => {
-    SplitText.create(el, {
-      type: 'lines',
-      mask: 'lines',
-      autoSplit: true,
-      // Keeps the heading a single readable string for screen readers rather
-      // than one node per line.
-      aria: 'auto',
-      onSplit: (self) => {
-        // The element itself is hidden until the split exists, so the raw text
-        // never flashes before it is wrapped in mask elements.
-        gsap.set(el, { opacity: 1 });
+    // Kept so the swap can revert them: a SplitText left behind holds on to
+    // the DOM it rewrote, and its resize and font listeners outlive the page.
+    splits.push(
+      SplitText.create(el, {
+        type: 'lines',
+        mask: 'lines',
+        autoSplit: true,
+        // Keeps the heading a single readable string for screen readers rather
+        // than one node per line.
+        aria: 'auto',
+        onSplit: (self) => {
+          // The element itself is hidden until the split exists, so the raw
+          // text never flashes before it is wrapped in mask elements.
+          gsap.set(el, { opacity: 1 });
 
-        return gsap.from(self.lines, {
-          yPercent: 115,
-          duration: DURATION.line,
-          ease: EASE.quiet,
-          stagger: STAGGER.line,
-          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
-        });
-      },
-    });
+          return gsap.from(self.lines, {
+            yPercent: 115,
+            duration: DURATION.line,
+            ease: EASE.quiet,
+            stagger: STAGGER.line,
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+          });
+        },
+      }),
+    );
   });
 }
 
@@ -230,6 +270,59 @@ function whenFontsReady(timeout = 1200): Promise<unknown> {
   ]);
 }
 
+/**
+ * Drops everything belonging to the page being navigated away from.
+ *
+ * A ScrollTrigger holds a reference to its trigger element and keeps measuring
+ * it, and a SplitText keeps the resize and font-load listeners it uses to
+ * re-split. Neither is cleaned up by the document swap, so both accumulate over
+ * a session — and stale triggers measured against a page that no longer exists
+ * will fire the new page's tweens at the wrong scroll positions.
+ */
+export function teardownMotion() {
+  ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+  splits.forEach((split) => split.revert());
+  splits = [];
+}
+
+/**
+ * Puts the pre-animation gate on a document that is about to be swapped in.
+ *
+ * `.motion` is added at runtime by the inline script in BaseLayout, so it lives
+ * on the live `<html>` and not in any page's HTML — which is deliberate, since
+ * a browser with JS off must never hide anything. The cost is that Astro's swap
+ * copies root attributes from the incoming document and takes the class off
+ * with them. Without this, every navigation after the first would arrive with
+ * nothing hidden and therefore nothing to reveal: content visible, which is the
+ * safe failure, but no animation for the rest of the session.
+ *
+ * Arming the incoming document rather than the live one is what avoids a flash
+ * — the class is in place before the new content is ever painted.
+ *
+ * The timer is the same failsafe the inline script uses on a full load: the
+ * swap also clears `data-motion-ready`, so if `initMotion` doesn't run after
+ * this, the gate comes off and the page is static rather than blank.
+ */
+export function armMotionGate(newDocument: Document) {
+  if (prefersReducedMotion()) return;
+
+  newDocument.documentElement.classList.add('motion');
+
+  window.setTimeout(() => {
+    const root = document.documentElement;
+    if (!root.dataset.motionReady) root.classList.remove('motion');
+  }, 2000);
+}
+
+/**
+ * Wires up the page currently in the document.
+ *
+ * Runs once per page rather than once per session: with view transitions the
+ * document is swapped without a reload, so this is called again after each one
+ * — see the script in `BaseLayout.astro`. Everything it creates is torn down by
+ * `teardownMotion` before the next swap; everything that must survive one
+ * (Lenis, the ticker) is created by `initSmoothScroll`, which is idempotent.
+ */
 export function initMotion() {
   const root = document.documentElement;
 
@@ -264,7 +357,15 @@ export function initMotion() {
       console.error('[motion] init failed, reveals disabled', error);
     }
   });
+}
 
-  // Images that decode late change the page height and move every trigger.
+/*
+  Images that decode late change the page height and move every trigger.
+  Registered once, at module scope rather than inside initMotion, because `load`
+  fires once per document load while initMotion now runs once per page — inside,
+  it would stack a listener per navigation for an event that can never fire
+  again.
+*/
+if (typeof window !== 'undefined') {
   window.addEventListener('load', () => ScrollTrigger.refresh());
 }

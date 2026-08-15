@@ -5,6 +5,7 @@ import {
   hrefOf,
   placeOf,
   statusLabel,
+  transitionNameOf,
   typeLabel,
   type Project,
 } from '../lib/projects';
@@ -20,6 +21,10 @@ import {
  * card can't assemble a location or an area differently from the detail page.
  * The whole card is the anchor, so the hit area is the image and the text
  * rather than the title alone.
+ *
+ * The hero carries the project's `view-transition-name`, which the detail
+ * page's hero carries too — so clicking a card moves that image into place on
+ * the next page instead of fading it out and a new one in.
  */
 interface Props {
   project: Project;
@@ -71,6 +76,7 @@ const facts = [typeLabel(type), areaLabel(project), statusLabel(status)].filter(
         ratio="2/1"
         sizes={sizes}
         reveal={reveal}
+        transitionName={transitionNameOf(project)}
       />
     )
   }
