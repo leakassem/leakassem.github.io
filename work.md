@@ -12,12 +12,9 @@ To see where things stand: *"where are we"*.
 Every session updates this file before finishing, so it is always the current
 state of the project.
 
-> **Current step: 10 — Go live** (`doing`, pulled forward from the end of the
-> list so steps 5–8 can be watched on a real URL). The repo is initialised and
-> committed, and the Pages workflow is written — what's left is the browser part
-> only: Lea creates `leakassem.github.io`, adds the maintainer as a collaborator,
-> and sets Pages' source to GitHub Actions. **Step 5 — Home page** is next after
-> that.
+> **Current step: 5 — Home page** (`todo`). Step 10 was pulled forward and is
+> done: the site is live at **https://leakassem.github.io** and every push to
+> `main` redeploys it. From here on, a step isn't finished until it's pushed.
 
 ---
 
@@ -427,7 +424,7 @@ nothing is ever left stuck invisible.
 
 ---
 
-### 10. Go live — `doing`
+### 10. Go live — `done`
 
 > **Pulled forward from the end of the list on 2026-08-15** so the remaining
 > pages are built against a live URL instead of only `localhost`. Kept as number
@@ -447,8 +444,8 @@ nothing is ever left stuck invisible.
 
 **Done when:** the site is live and the workflow deploys on push to `main`.
 
-**Outcome so far:** everything that doesn't need the remote to exist is done and
-committed. The repo is initialised on `main` with one commit.
+**Outcome: the site is live at https://leakassem.github.io**, deployed from
+`leakassem/leakassem.github.io` by GitHub Actions on every push to `main`.
 
 - **`.github/workflows/deploy.yml`** — build on push to `main` plus manual
   `workflow_dispatch`, then deploy to Pages. Written out rather than using
@@ -478,14 +475,17 @@ no LFS. `npm run build` passes — 5 pages, 237 image variants — `dist/robots.
 ships, and a scan of every built `.html`/`.js`/`.css` finds no email address, no
 phone number and no social handle.
 
-**Still needs a human, in this order:**
-1. Lea creates the empty repo (no README, no `.gitignore`, no licence) at
-   `github.com/new`, named exactly `leakassem.github.io`, **public**.
-2. Lea adds the maintainer as a collaborator — Settings → Collaborators.
-3. Settings → Pages → Source: **GitHub Actions** (not "Deploy from a branch").
-4. `git remote add origin` + `git push -u origin main`.
+**Verified live** on 2026-08-16, after the push: `/`, `/work/`, `/styleguide/`,
+`/robots.txt` and `/favicon.svg` all return 200. The hashed CSS bundle and an
+AVIF hero variant both serve from `/_astro/`, so Pages is serving the built
+asset graph and not just the HTML. `robots.txt` is the disallow-all it should be.
+The served HTML carries no email address and no phone number. `main` is in sync
+with `origin/main` with a clean tree.
 
-**Outcome:** _(fill in once the first deploy is green)_
+**What this changes for every step after it:** a step is not finished until it is
+pushed. `git push` is the deploy, and a red run in the Actions tab means nothing
+was published — the previous version stays live, which is a safe failure but a
+silent one.
 
 ---
 
