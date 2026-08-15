@@ -206,12 +206,24 @@ change to the detector can't silently drop the wrong thing. Re-running renumbers
 
 ## Session protocol
 
-**Every session must end by updating `work.md`:**
+**Every session must end by updating `work.md` and pushing:**
 
 1. Mark the step's status (`todo` → `doing` → `done`).
 2. Fill in that step's **Outcome** line — what actually exists now.
 3. Add anything discovered to **Open items** if it needs a human decision.
 4. If a decision was made, append it to the **Decisions log** with the date.
+5. `npm run build` must pass, then commit and `git push origin main`. **Don't ask
+   first** — since step 10 the push is the deploy, and a step that isn't pushed
+   isn't finished. The user can say "local only" for a step they want held back.
+
+**Before every commit, check what is staged** — not just that `.gitignore` looks
+right. `git status --porcelain -uall` and confirm no `.pdf`, `.docx` or `.doc` is
+among the files. This repo is public and Lea's phone number and address are in
+those documents; git history keeps them forever.
+
+Then confirm the deploy rather than assuming it: the Actions run has to be green,
+and a fetch of the live URL should show the change. **A red run publishes
+nothing and leaves the previous version live** — safe, but silent.
 
 If something in this file becomes wrong (a command changes, a convention
 shifts), fix it in the same session rather than leaving it stale.
