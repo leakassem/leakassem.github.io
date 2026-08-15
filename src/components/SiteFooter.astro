@@ -1,0 +1,58 @@
+---
+import Container from './Container.astro';
+import Section from './Section.astro';
+import { NAV, currentFor } from '../lib/nav';
+
+/**
+ * The global footer. Rendered by `BaseLayout`, so no page mounts it itself.
+ *
+ * Name, title, where she works from, and the routes — nothing else. No phone,
+ * no address, no social links; see the hard rules in `CLAUDE.md`. The contact
+ * link points at `/contact`, and step 8 is what puts an actual address behind
+ * it, assembled in JS.
+ *
+ * Built on `Section` so the band carries the same rule and vertical label as
+ * every other band on the site rather than being styled one-off. That label is
+ * the location, which is what her sheets set alongside the rule in their own
+ * footers (docs/BRIEF.md §2) — and it keeps the footer from repeating a page's
+ * own label back at it, which "Contact" did on /contact.
+ */
+const path = Astro.url.pathname;
+
+// Frozen at build time, which is what a static site can offer. Every push
+// rebuilds, so it can only be stale in a year nothing shipped.
+const year = new Date().getFullYear();
+---
+
+<Section as="footer" tone="ground" space="tight" divider label="Beirut, Lebanon">
+  <Container>
+    <div class="gap-block flex flex-col justify-between sm:flex-row">
+      <div>
+        <p class="font-display text-title">Lea Kassem</p>
+        <p class="label text-muted mt-4">Interior Architect</p>
+      </div>
+
+      <nav aria-label="Footer">
+        <ul class="flex flex-col sm:items-end">
+          {
+            NAV.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="nav-link"
+                  aria-current={currentFor(item.href, path)}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+
+    <p class="text-small text-muted border-hairline-soft mt-block border-t pt-6">
+      &copy; {year} Lea Kassem
+    </p>
+  </Container>
+</Section>

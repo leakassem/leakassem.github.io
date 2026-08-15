@@ -1,0 +1,36 @@
+---
+/**
+ * The signature mark from her sheets: one thin black rule down the left with
+ * the category set vertically alongside it, reading bottom-to-top.
+ *
+ * It stretches to the height of its flex parent, so the parent needs
+ * `items-stretch` (the default) and a height to stretch to. `Section` with a
+ * `label` prop wires that up already — reach for this directly only when
+ * building something Section doesn't cover.
+ */
+interface Props {
+  label?: string;
+  /** Where the label sits along the rule. */
+  align?: 'top' | 'center' | 'bottom';
+  class?: string;
+}
+
+const { label, align = 'top', class: className = '' } = Astro.props;
+
+const alignment = {
+  top: 'self-start',
+  center: 'self-center',
+  bottom: 'self-end',
+} as const;
+---
+
+<div class:list={['flex shrink-0 items-stretch gap-3 md:gap-4', className]}>
+  <div class="bg-hairline w-hair shrink-0"></div>
+  {
+    label && (
+      <p class:list={['label vertical-label text-muted', alignment[align]]}>
+        {label}
+      </p>
+    )
+  }
+</div>

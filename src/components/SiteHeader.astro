@@ -1,0 +1,52 @@
+---
+import Container from './Container.astro';
+import { NAV, currentFor } from '../lib/nav';
+
+/**
+ * The global header. Rendered by `BaseLayout`, so no page mounts it itself.
+ *
+ * There is no mobile menu and no toggle. Three routes and a wordmark fit on one
+ * line at 375px, which means no overlay, no focus trap, no Escape handler and
+ * no JavaScript — the nav works identically whether the motion bundle loads or
+ * not. If a fourth route ever makes the row overflow, the fix is a CSS-only
+ * disclosure, not a scripted one (see `work.md` step 4b).
+ *
+ * It sticks rather than hides on scroll: /work is a long grid and every project
+ * page is longer, so the nav needs to stay reachable. Sticking is also the only
+ * one of the three options with nothing to animate, which is why there is
+ * nothing here to no-op under `prefers-reduced-motion`.
+ */
+const path = Astro.url.pathname;
+---
+
+<header class="bg-ground border-hairline-soft sticky top-0 z-50 border-b">
+  <Container
+    class="h-header sm:gap-gutter flex items-center justify-between gap-4"
+  >
+    <a
+      href="/"
+      class="label text-ink font-bold whitespace-nowrap sm:text-small"
+      aria-current={currentFor('/', path)}
+    >
+      Lea Kassem
+    </a>
+
+    <nav aria-label="Primary">
+      <ul class="flex items-center gap-3 sm:gap-8">
+        {
+          NAV.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="nav-link"
+                aria-current={currentFor(item.href, path)}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </Container>
+</header>

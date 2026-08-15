@@ -1,0 +1,97 @@
+---
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+/**
+ * An image in its clip box.
+ *
+ * This is the one place that decides how a picture reaches the browser —
+ * which formats, which widths, how the box reserves its space, and how the
+ * reveal is wired. Pages pass a source and say how wide it will render; they
+ * never write a `<Picture>` themselves. GitHub Pages can't resize anything at
+ * request time, so every variant has to be generated at build time, and having
+ * that in one file is what stops a page from quietly shipping a single 1500px
+ * JPEG to a phone.
+ *
+ * The box always carries an aspect ratio, so its space is reserved before the
+ * image decodes and nothing on the page shifts. The image inside is
+ * `object-fit: cover`, so passing a `ratio` crops rather than distorts.
+ */
+interface Props {
+  src: ImageMetadata;
+  /** Describes the space, not the file. See the image rules in CLAUDE.md. */
+  alt: string;
+  /**
+   * Box aspect as a CSS ratio — "2/1", "4/3". Defaults to the file's own,
+   * which is the honest choice for a gallery of mixed crops.
+   */
+  ratio?: string;
+  /**
+   * How wide this renders at each breakpoint. Required: without it the browser
+   * assumes 100vw and pulls the largest variant for a thumbnail.
+   */
+  sizes: string;
+  /** Above the fold. Loads eagerly at high priority instead of lazily. */
+  priority?: boolean;
+  /**
+   * Off inside a staggered `Grid`, which owns its children's entrance — two
+   * tweens on the same opacity fight each other.
+   */
+  reveal?: boolean;
+  /** Scroll-linked drift as a percentage. Hero imagery only, never text. */
+  parallax?: number;
+  class?: string;
+}
+
+// Annotated rather than inferred — see the note in Container.astro.
+const {
+  src,
+  alt,
+  ratio,
+  sizes,
+  priority = false,
+  reveal,
+  parallax,
+  class: className = '',
+}: Props = Astro.props;
+
+/*
+  The variant ladder stops at the source width. Today's crops come off the PDF
+  sheets at 390–1530px (work.md open item 1), and upscaling a soft crop only
+  makes a bigger soft crop. When Lea's originals arrive the same ladder reaches
+  further on its own — no code change, which is the point of the whole
+  file-drop convention.
+*/
+const LADDER = [400, 600, 800, 1200, 1600, 2000];
+const widths = [...new Set([...LADDER.filter((w) => w < src.width), src.width])];
+
+/*
+  Parallax and the image reveal both animate the same element, so a box that
+  drifts doesn't also scale in. A caller can still force either.
+*/
+const drifts = parallax !== undefined;
+const revealing = reveal ?? !drifts;
+
+// The drifting element must overflow its box, or the drift exposes an edge.
+const pictureClass = drifts
+  ? 'absolute inset-x-0 top-[-12%] h-[124%] w-full'
+  : undefined;
+---
+
+<div
+  class:list={['media', className]}
+  style={`aspect-ratio: ${ratio ?? `${src.width}/${src.height}`};`}
+  data-reveal={revealing ? 'image' : undefined}
+>
+  <Picture
+    src={src}
+    alt={alt}
+    widths={widths}
+    sizes={sizes}
+    formats={['avif', 'webp']}
+    loading={priority ? 'eager' : 'lazy'}
+    decoding={priority ? 'sync' : 'async'}
+    fetchpriority={priority ? 'high' : 'auto'}
+    pictureAttributes={{ class: pictureClass, 'data-parallax': parallax }}
+  />
+</div>

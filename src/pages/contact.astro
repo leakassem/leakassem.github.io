@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/Container.astro';
+import Section from '../components/Section.astro';
+
+/*
+  Placeholder. The real page is step 8 in work.md.
+
+  It exists because step 4b's header and footer both link here. Deliberately
+  carries no address: contact is email only, which email is still open item 2,
+  and the address has to be assembled in JS at runtime rather than sitting in
+  the HTML — see the hard rules in CLAUDE.md. Nothing here should be copied
+  forward except the shape.
+*/
+---
+
+<BaseLayout
+  title="Contact — Lea Kassem"
+  description="Get in touch with Lea Kassem, Senior Interior Architect."
+  noindex
+>
+  <Section tone="paper" label="Contact">
+    <Container>
+      <h1 class="font-display text-headline" data-reveal="heading">Contact</h1>
+
+      <p class="text-subhead text-muted max-w-text mt-8" data-reveal>
+        Placeholder. The email address is added in step 8, assembled in the
+        browser rather than written into the page, with a fallback for readers
+        without JavaScript.
+      </p>
+    </Container>
+  </Section>
+</BaseLayout>

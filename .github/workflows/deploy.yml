@@ -1,0 +1,57 @@
+# Builds the site and publishes it to GitHub Pages on every push to main.
+#
+# Written out rather than using `withastro/action` so the build command is the
+# same one used locally — `npm run build`, which runs `astro check` first. A
+# type error or a broken image reference fails the deploy instead of shipping.
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Lets a deploy be re-run from the Actions tab without an empty commit.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time. A push landing mid-deploy cancels the older run rather
+# than racing it to the same environment.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Matches the Node on the dev machine, so a build that passes locally
+          # isn't failed here by a version difference.
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # astro check + astro build. Image variants are generated here — this is
+      # the slow step, and it grows as steps 6 and 7 render all 130 crops.
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

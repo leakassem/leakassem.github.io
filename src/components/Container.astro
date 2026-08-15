@@ -1,0 +1,38 @@
+---
+/**
+ * Horizontal bound + page gutters. Every page-level block should sit in one of
+ * these rather than setting its own margins.
+ *
+ * width:
+ *   page   — the default outer bound (90rem)
+ *   text   — prose measure, ~70ch
+ *   narrow — captions, metadata columns
+ *   full   — no bound, gutters only (full-bleed image bands)
+ */
+interface Props {
+  width?: 'page' | 'text' | 'narrow' | 'full';
+  as?: keyof HTMLElementTagNameMap;
+  class?: string;
+}
+
+// Annotated rather than inferred: Astro doesn't wire Astro.props to the Props
+// interface in components that render a dynamic <Tag>, which leaves the
+// lookups below indexing with `any`.
+const {
+  width = 'page',
+  as: Tag = 'div',
+  class: className = '',
+}: Props = Astro.props;
+
+// Tailwind needs whole class names in the source, so these are spelled out.
+const widths = {
+  page: 'max-w-page',
+  text: 'max-w-text',
+  narrow: 'max-w-narrow',
+  full: 'max-w-none',
+} as const;
+---
+
+<Tag class:list={['mx-auto w-full px-gutter', widths[width], className]}>
+  <slot />
+</Tag>

@@ -1,0 +1,1647 @@
+[
+  {
+    "slug": "ad-villa",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 2,
+        "box": [
+          850,
+          691,
+          1622,
+          1077
+        ],
+        "width": 768,
+        "height": 382
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 2,
+        "box": [
+          850,
+          94,
+          1262,
+          609
+        ],
+        "width": 408,
+        "height": 511
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 2,
+        "box": [
+          1270,
+          94,
+          1546,
+          609
+        ],
+        "width": 272,
+        "height": 511
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 2,
+        "box": [
+          1551,
+          94,
+          1963,
+          609
+        ],
+        "width": 408,
+        "height": 511
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 2,
+        "box": [
+          1971,
+          94,
+          2383,
+          609
+        ],
+        "width": 408,
+        "height": 511
+      },
+      {
+        "file": "gallery-05.jpg",
+        "sheet": 2,
+        "box": [
+          187,
+          225,
+          690,
+          561
+        ],
+        "width": 499,
+        "height": 332
+      },
+      {
+        "file": "gallery-06.jpg",
+        "sheet": 2,
+        "box": [
+          850,
+          627,
+          1622,
+          1142
+        ],
+        "width": 768,
+        "height": 511
+      },
+      {
+        "file": "gallery-07.jpg",
+        "sheet": 2,
+        "box": [
+          1628,
+          627,
+          2027,
+          1142
+        ],
+        "width": 395,
+        "height": 511
+      },
+      {
+        "file": "gallery-08.jpg",
+        "sheet": 2,
+        "box": [
+          2034,
+          627,
+          2383,
+          1143
+        ],
+        "width": 345,
+        "height": 512
+      },
+      {
+        "file": "gallery-09.jpg",
+        "sheet": 3,
+        "box": [
+          849,
+          96,
+          1356,
+          727
+        ],
+        "width": 503,
+        "height": 627
+      },
+      {
+        "file": "gallery-10.jpg",
+        "sheet": 3,
+        "box": [
+          1363,
+          96,
+          1868,
+          727
+        ],
+        "width": 501,
+        "height": 627
+      },
+      {
+        "file": "gallery-11.jpg",
+        "sheet": 3,
+        "box": [
+          1877,
+          96,
+          2381,
+          727
+        ],
+        "width": 500,
+        "height": 627
+      },
+      {
+        "file": "gallery-12.jpg",
+        "sheet": 3,
+        "box": [
+          187,
+          269,
+          640,
+          576
+        ],
+        "width": 449,
+        "height": 303
+      },
+      {
+        "file": "gallery-13.jpg",
+        "sheet": 3,
+        "box": [
+          850,
+          743,
+          1451,
+          1142
+        ],
+        "width": 597,
+        "height": 395
+      },
+      {
+        "file": "gallery-14.jpg",
+        "sheet": 3,
+        "box": [
+          1458,
+          743,
+          1777,
+          1142
+        ],
+        "width": 315,
+        "height": 395
+      },
+      {
+        "file": "gallery-15.jpg",
+        "sheet": 3,
+        "box": [
+          1786,
+          743,
+          2383,
+          1142
+        ],
+        "width": 593,
+        "height": 395
+      }
+    ]
+  },
+  {
+    "slug": "difc-apartment",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 4,
+        "box": [
+          1565,
+          178,
+          2383,
+          587
+        ],
+        "width": 814,
+        "height": 405
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 4,
+        "box": [
+          786,
+          94,
+          1554,
+          671
+        ],
+        "width": 764,
+        "height": 573
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 4,
+        "box": [
+          1565,
+          94,
+          2383,
+          671
+        ],
+        "width": 814,
+        "height": 573
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 4,
+        "box": [
+          2020,
+          679,
+          2384,
+          1140
+        ],
+        "width": 360,
+        "height": 457
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 4,
+        "box": [
+          786,
+          685,
+          1395,
+          1140
+        ],
+        "width": 605,
+        "height": 451
+      },
+      {
+        "file": "gallery-05.jpg",
+        "sheet": 4,
+        "box": [
+          1408,
+          685,
+          2004,
+          1140
+        ],
+        "width": 592,
+        "height": 451
+      },
+      {
+        "file": "gallery-06.jpg",
+        "sheet": 5,
+        "box": [
+          1359,
+          94,
+          1966,
+          501
+        ],
+        "width": 603,
+        "height": 403
+      },
+      {
+        "file": "gallery-07.jpg",
+        "sheet": 5,
+        "box": [
+          1977,
+          94,
+          2382,
+          501
+        ],
+        "width": 401,
+        "height": 403
+      },
+      {
+        "file": "gallery-08.jpg",
+        "sheet": 5,
+        "box": [
+          941,
+          95,
+          1346,
+          501
+        ],
+        "width": 401,
+        "height": 402
+      },
+      {
+        "file": "gallery-09.jpg",
+        "sheet": 5,
+        "box": [
+          941,
+          512,
+          1448,
+          1142
+        ],
+        "width": 503,
+        "height": 626
+      },
+      {
+        "file": "gallery-10.jpg",
+        "sheet": 5,
+        "box": [
+          1460,
+          512,
+          1966,
+          1142
+        ],
+        "width": 502,
+        "height": 626
+      },
+      {
+        "file": "gallery-11.jpg",
+        "sheet": 5,
+        "box": [
+          1978,
+          512,
+          2382,
+          1142
+        ],
+        "width": 400,
+        "height": 626
+      },
+      {
+        "file": "gallery-12.jpg",
+        "sheet": 6,
+        "box": [
+          1690,
+          94,
+          2383,
+          563
+        ],
+        "width": 689,
+        "height": 465
+      },
+      {
+        "file": "gallery-13.jpg",
+        "sheet": 6,
+        "box": [
+          987,
+          569,
+          1445,
+          1142
+        ],
+        "width": 454,
+        "height": 569
+      },
+      {
+        "file": "gallery-14.jpg",
+        "sheet": 6,
+        "box": [
+          1453,
+          569,
+          1914,
+          1142
+        ],
+        "width": 457,
+        "height": 569
+      },
+      {
+        "file": "gallery-15.jpg",
+        "sheet": 6,
+        "box": [
+          1922,
+          570,
+          2380,
+          1142
+        ],
+        "width": 454,
+        "height": 568
+      }
+    ]
+  },
+  {
+    "slug": "k1-villa",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 7,
+        "box": [
+          812,
+          687,
+          1592,
+          1077
+        ],
+        "width": 776,
+        "height": 386
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 7,
+        "box": [
+          812,
+          94,
+          1591,
+          611
+        ],
+        "width": 775,
+        "height": 513
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 7,
+        "box": [
+          1600,
+          94,
+          2380,
+          612
+        ],
+        "width": 776,
+        "height": 514
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 7,
+        "box": [
+          812,
+          623,
+          1592,
+          1141
+        ],
+        "width": 776,
+        "height": 514
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 7,
+        "box": [
+          1601,
+          623,
+          2380,
+          1140
+        ],
+        "width": 775,
+        "height": 513
+      }
+    ]
+  },
+  {
+    "slug": "fg-villa",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 8,
+        "box": [
+          1493,
+          623,
+          2383,
+          1068
+        ],
+        "width": 886,
+        "height": 441
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 8,
+        "box": [
+          1700,
+          93,
+          2383,
+          544
+        ],
+        "width": 679,
+        "height": 447
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 8,
+        "box": [
+          1012,
+          94,
+          1693,
+          544
+        ],
+        "width": 677,
+        "height": 446
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 8,
+        "box": [
+          1012,
+          550,
+          1486,
+          1142
+        ],
+        "width": 470,
+        "height": 588
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 8,
+        "box": [
+          1493,
+          550,
+          2383,
+          1142
+        ],
+        "width": 886,
+        "height": 588
+      }
+    ]
+  },
+  {
+    "slug": "vbm-villa",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 9,
+        "box": [
+          799,
+          253,
+          1589,
+          648
+        ],
+        "width": 786,
+        "height": 391
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 9,
+        "box": [
+          187,
+          236,
+          784,
+          528
+        ],
+        "width": 593,
+        "height": 288
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 9,
+        "box": [
+          799,
+          236,
+          1589,
+          665
+        ],
+        "width": 786,
+        "height": 425
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 9,
+        "box": [
+          1603,
+          236,
+          2385,
+          665
+        ],
+        "width": 778,
+        "height": 425
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 9,
+        "box": [
+          799,
+          699,
+          1589,
+          1142
+        ],
+        "width": 786,
+        "height": 439
+      },
+      {
+        "file": "gallery-05.jpg",
+        "sheet": 9,
+        "box": [
+          1603,
+          699,
+          2385,
+          1142
+        ],
+        "width": 778,
+        "height": 439
+      },
+      {
+        "file": "gallery-06.jpg",
+        "sheet": 10,
+        "box": [
+          850,
+          94,
+          2379,
+          548
+        ],
+        "width": 1525,
+        "height": 450
+      },
+      {
+        "file": "gallery-07.jpg",
+        "sheet": 10,
+        "box": [
+          1718,
+          581,
+          2380,
+          843
+        ],
+        "width": 658,
+        "height": 258
+      },
+      {
+        "file": "gallery-08.jpg",
+        "sheet": 10,
+        "box": [
+          849,
+          597,
+          1687,
+          846
+        ],
+        "width": 834,
+        "height": 245
+      },
+      {
+        "file": "gallery-09.jpg",
+        "sheet": 10,
+        "box": [
+          1718,
+          891,
+          2383,
+          1142
+        ],
+        "width": 661,
+        "height": 247
+      },
+      {
+        "file": "gallery-10.jpg",
+        "sheet": 10,
+        "box": [
+          849,
+          895,
+          1687,
+          1144
+        ],
+        "width": 834,
+        "height": 245
+      }
+    ]
+  },
+  {
+    "slug": "3b-apartment",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 11,
+        "box": [
+          959,
+          96,
+          2277,
+          755
+        ],
+        "width": 1314,
+        "height": 655
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 11,
+        "box": [
+          850,
+          96,
+          2387,
+          755
+        ],
+        "width": 1533,
+        "height": 655
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 11,
+        "box": [
+          191,
+          236,
+          784,
+          496
+        ],
+        "width": 589,
+        "height": 256
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 11,
+        "box": [
+          850,
+          786,
+          1684,
+          1144
+        ],
+        "width": 830,
+        "height": 354
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 11,
+        "box": [
+          1698,
+          786,
+          2386,
+          1143
+        ],
+        "width": 684,
+        "height": 353
+      }
+    ]
+  },
+  {
+    "slug": "az-triplex",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 12,
+        "box": [
+          1656,
+          167,
+          2379,
+          529
+        ],
+        "width": 719,
+        "height": 358
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 12,
+        "box": [
+          903,
+          92,
+          1627,
+          605
+        ],
+        "width": 720,
+        "height": 509
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 12,
+        "box": [
+          1656,
+          92,
+          2379,
+          604
+        ],
+        "width": 719,
+        "height": 508
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 12,
+        "box": [
+          195,
+          228,
+          633,
+          539
+        ],
+        "width": 434,
+        "height": 307
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 12,
+        "box": [
+          1672,
+          637,
+          2388,
+          1143
+        ],
+        "width": 712,
+        "height": 502
+      },
+      {
+        "file": "gallery-05.jpg",
+        "sheet": 12,
+        "box": [
+          903,
+          641,
+          1641,
+          1138
+        ],
+        "width": 734,
+        "height": 493
+      },
+      {
+        "file": "gallery-06.jpg",
+        "sheet": 13,
+        "box": [
+          198,
+          226,
+          828,
+          639
+        ],
+        "width": 626,
+        "height": 409
+      },
+      {
+        "file": "gallery-07.jpg",
+        "sheet": 13,
+        "box": [
+          856,
+          226,
+          1575,
+          639
+        ],
+        "width": 715,
+        "height": 409
+      },
+      {
+        "file": "gallery-08.jpg",
+        "sheet": 13,
+        "box": [
+          1601,
+          226,
+          2382,
+          639
+        ],
+        "width": 777,
+        "height": 409
+      },
+      {
+        "file": "gallery-09.jpg",
+        "sheet": 13,
+        "box": [
+          196,
+          665,
+          828,
+          1077
+        ],
+        "width": 628,
+        "height": 408
+      },
+      {
+        "file": "gallery-10.jpg",
+        "sheet": 13,
+        "box": [
+          856,
+          665,
+          1575,
+          1077
+        ],
+        "width": 715,
+        "height": 408
+      },
+      {
+        "file": "gallery-11.jpg",
+        "sheet": 13,
+        "box": [
+          1601,
+          665,
+          2382,
+          1077
+        ],
+        "width": 777,
+        "height": 408
+      }
+    ]
+  },
+  {
+    "slug": "qatar-villa",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 15,
+        "box": [
+          1130,
+          94,
+          2228,
+          643
+        ],
+        "width": 1094,
+        "height": 545
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 14,
+        "box": [
+          885,
+          85,
+          1627,
+          603
+        ],
+        "width": 738,
+        "height": 514
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 14,
+        "box": [
+          1650,
+          85,
+          2386,
+          603
+        ],
+        "width": 732,
+        "height": 514
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 14,
+        "box": [
+          196,
+          200,
+          728,
+          603
+        ],
+        "width": 528,
+        "height": 399
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 14,
+        "box": [
+          885,
+          625,
+          1627,
+          1148
+        ],
+        "width": 738,
+        "height": 519
+      },
+      {
+        "file": "gallery-05.jpg",
+        "sheet": 14,
+        "box": [
+          1648,
+          625,
+          2386,
+          1148
+        ],
+        "width": 734,
+        "height": 519
+      },
+      {
+        "file": "gallery-06.jpg",
+        "sheet": 15,
+        "box": [
+          972,
+          94,
+          2387,
+          643
+        ],
+        "width": 1411,
+        "height": 545
+      },
+      {
+        "file": "gallery-07.jpg",
+        "sheet": 15,
+        "box": [
+          194,
+          228,
+          660,
+          572
+        ],
+        "width": 462,
+        "height": 340
+      },
+      {
+        "file": "gallery-08.jpg",
+        "sheet": 15,
+        "box": [
+          972,
+          672,
+          2387,
+          1147
+        ],
+        "width": 1411,
+        "height": 471
+      }
+    ]
+  },
+  {
+    "slug": "8b2-studio-apartment",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 16,
+        "box": [
+          1683,
+          169,
+          2385,
+          520
+        ],
+        "width": 698,
+        "height": 347
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 16,
+        "box": [
+          963,
+          83,
+          1665,
+          607
+        ],
+        "width": 698,
+        "height": 520
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 16,
+        "box": [
+          1683,
+          84,
+          2385,
+          606
+        ],
+        "width": 698,
+        "height": 518
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 16,
+        "box": [
+          964,
+          624,
+          1665,
+          1148
+        ],
+        "width": 697,
+        "height": 520
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 16,
+        "box": [
+          1685,
+          626,
+          2385,
+          1148
+        ],
+        "width": 696,
+        "height": 518
+      }
+    ]
+  },
+  {
+    "slug": "b11-apartment",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 17,
+        "box": [
+          1050,
+          96,
+          2360,
+          751
+        ],
+        "width": 1306,
+        "height": 651
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 17,
+        "box": [
+          1020,
+          96,
+          2390,
+          751
+        ],
+        "width": 1366,
+        "height": 651
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 17,
+        "box": [
+          196,
+          246,
+          635,
+          556
+        ],
+        "width": 435,
+        "height": 306
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 17,
+        "box": [
+          1019,
+          768,
+          1750,
+          1143
+        ],
+        "width": 727,
+        "height": 371
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 17,
+        "box": [
+          1767,
+          768,
+          2390,
+          1143
+        ],
+        "width": 619,
+        "height": 371
+      }
+    ]
+  },
+  {
+    "slug": "3bf-apartment",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 18,
+        "box": [
+          933,
+          118,
+          1704,
+          504
+        ],
+        "width": 767,
+        "height": 382
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 18,
+        "box": [
+          933,
+          90,
+          1704,
+          533
+        ],
+        "width": 767,
+        "height": 439
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 18,
+        "box": [
+          1717,
+          90,
+          2387,
+          532
+        ],
+        "width": 666,
+        "height": 438
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 18,
+        "box": [
+          196,
+          197,
+          743,
+          534
+        ],
+        "width": 543,
+        "height": 333
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 18,
+        "box": [
+          933,
+          558,
+          1908,
+          1151
+        ],
+        "width": 971,
+        "height": 589
+      },
+      {
+        "file": "gallery-05.jpg",
+        "sheet": 18,
+        "box": [
+          1926,
+          560,
+          2387,
+          1151
+        ],
+        "width": 457,
+        "height": 587
+      }
+    ]
+  },
+  {
+    "slug": "mma-apartment",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 19,
+        "box": [
+          682,
+          276,
+          1225,
+          548
+        ],
+        "width": 539,
+        "height": 268
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 19,
+        "box": [
+          196,
+          203,
+          659,
+          622
+        ],
+        "width": 459,
+        "height": 415
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 19,
+        "box": [
+          682,
+          203,
+          1225,
+          622
+        ],
+        "width": 539,
+        "height": 415
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 19,
+        "box": [
+          1811,
+          203,
+          2391,
+          1012
+        ],
+        "width": 576,
+        "height": 805
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 19,
+        "box": [
+          682,
+          638,
+          1225,
+          1013
+        ],
+        "width": 539,
+        "height": 371
+      },
+      {
+        "file": "gallery-05.jpg",
+        "sheet": 19,
+        "box": [
+          1248,
+          638,
+          1791,
+          1012
+        ],
+        "width": 539,
+        "height": 370
+      }
+    ]
+  },
+  {
+    "slug": "faqra-duplex-chalet",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 20,
+        "box": [
+          955,
+          162,
+          1688,
+          529
+        ],
+        "width": 729,
+        "height": 363
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 20,
+        "box": [
+          955,
+          84,
+          1688,
+          608
+        ],
+        "width": 729,
+        "height": 520
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 20,
+        "box": [
+          1707,
+          84,
+          2391,
+          606
+        ],
+        "width": 680,
+        "height": 518
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 20,
+        "box": [
+          195,
+          198,
+          764,
+          607
+        ],
+        "width": 565,
+        "height": 405
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 20,
+        "box": [
+          956,
+          628,
+          1688,
+          1152
+        ],
+        "width": 728,
+        "height": 520
+      },
+      {
+        "file": "gallery-05.jpg",
+        "sheet": 20,
+        "box": [
+          1707,
+          628,
+          2391,
+          1152
+        ],
+        "width": 680,
+        "height": 520
+      }
+    ]
+  },
+  {
+    "slug": "vacation-house-byblos",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 21,
+        "box": [
+          746,
+          201,
+          1575,
+          616
+        ],
+        "width": 825,
+        "height": 411
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 21,
+        "box": [
+          746,
+          96,
+          1575,
+          722
+        ],
+        "width": 825,
+        "height": 622
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 21,
+        "box": [
+          1594,
+          96,
+          2389,
+          725
+        ],
+        "width": 791,
+        "height": 625
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 21,
+        "box": [
+          196,
+          244,
+          591,
+          555
+        ],
+        "width": 391,
+        "height": 307
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 21,
+        "box": [
+          746,
+          738,
+          1269,
+          1149
+        ],
+        "width": 519,
+        "height": 407
+      },
+      {
+        "file": "gallery-05.jpg",
+        "sheet": 21,
+        "box": [
+          1290,
+          738,
+          1818,
+          1150
+        ],
+        "width": 524,
+        "height": 408
+      },
+      {
+        "file": "gallery-06.jpg",
+        "sheet": 21,
+        "box": [
+          1839,
+          738,
+          2389,
+          1150
+        ],
+        "width": 546,
+        "height": 408
+      }
+    ]
+  },
+  {
+    "slug": "mn-apartment",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 22,
+        "box": [
+          1637,
+          157,
+          2388,
+          533
+        ],
+        "width": 747,
+        "height": 372
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 22,
+        "box": [
+          872,
+          79,
+          1623,
+          612
+        ],
+        "width": 747,
+        "height": 529
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 22,
+        "box": [
+          1637,
+          79,
+          2388,
+          612
+        ],
+        "width": 747,
+        "height": 529
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 22,
+        "box": [
+          873,
+          625,
+          1623,
+          1148
+        ],
+        "width": 746,
+        "height": 519
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 22,
+        "box": [
+          1637,
+          625,
+          2389,
+          1148
+        ],
+        "width": 748,
+        "height": 519
+      }
+    ]
+  },
+  {
+    "slug": "jcl-apartment",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 23,
+        "box": [
+          1620,
+          170,
+          2387,
+          554
+        ],
+        "width": 763,
+        "height": 380
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 23,
+        "box": [
+          825,
+          91,
+          1591,
+          635
+        ],
+        "width": 762,
+        "height": 540
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 23,
+        "box": [
+          1620,
+          92,
+          2387,
+          633
+        ],
+        "width": 763,
+        "height": 537
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 23,
+        "box": [
+          198,
+          249,
+          624,
+          543
+        ],
+        "width": 422,
+        "height": 290
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 23,
+        "box": [
+          1620,
+          661,
+          2386,
+          1136
+        ],
+        "width": 762,
+        "height": 471
+      },
+      {
+        "file": "gallery-05.jpg",
+        "sheet": 23,
+        "box": [
+          826,
+          662,
+          1591,
+          1136
+        ],
+        "width": 761,
+        "height": 470
+      }
+    ]
+  },
+  {
+    "slug": "rj-apartment",
+    "entries": [
+      {
+        "file": "hero.jpg",
+        "sheet": 24,
+        "box": [
+          864,
+          351,
+          1932,
+          885
+        ],
+        "width": 1064,
+        "height": 530
+      },
+      {
+        "file": "gallery-01.jpg",
+        "sheet": 24,
+        "box": [
+          864,
+          96,
+          1932,
+          1140
+        ],
+        "width": 1064,
+        "height": 1040
+      },
+      {
+        "file": "gallery-02.jpg",
+        "sheet": 24,
+        "box": [
+          1948,
+          96,
+          2386,
+          644
+        ],
+        "width": 434,
+        "height": 544
+      },
+      {
+        "file": "gallery-03.jpg",
+        "sheet": 24,
+        "box": [
+          198,
+          244,
+          612,
+          555
+        ],
+        "width": 410,
+        "height": 307
+      },
+      {
+        "file": "gallery-04.jpg",
+        "sheet": 24,
+        "box": [
+          1948,
+          666,
+          2386,
+          1140
+        ],
+        "width": 434,
+        "height": 470
+      }
+    ]
+  }
+]

@@ -1,0 +1,32 @@
+# Source documents — NEVER commit.
+# These contain Lea's personal phone number and address. Once pushed to a public
+# repo they stay in git history forever, even if deleted in a later commit.
+*.pdf
+*.docx
+*.doc
+/source/
+
+# Build output
+dist/
+.astro/
+
+# Screenshots from scripts/shoot.mjs, and the throwaway browser profile it uses
+.shots/
+
+# Dependencies
+node_modules/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Machine-local Claude Code settings (permission allowlist). Shared project
+# config would go in .claude/settings.json, which is tracked.
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*

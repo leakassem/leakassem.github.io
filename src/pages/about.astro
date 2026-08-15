@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/Container.astro';
+import Section from '../components/Section.astro';
+
+/*
+  Placeholder. The real page is step 8 in work.md — bio, experience timeline,
+  skills, languages and education, all of it already written out in
+  docs/BRIEF.md §1.
+
+  It exists because step 4b's header links here, and a nav link that 404s is
+  worse than a thin page. Marked noindex for the same reason: a placeholder in
+  a search index is worse still.
+*/
+---
+
+<BaseLayout
+  title="About — Lea Kassem"
+  description="About Lea Kassem, Senior Interior Architect."
+  noindex
+>
+  <Section tone="paper" label="About">
+    <Container>
+      <h1 class="font-display text-headline" data-reveal="heading">About</h1>
+
+      <p class="text-subhead text-muted max-w-text mt-8" data-reveal>
+        Placeholder. The bio, experience timeline, skills, languages and
+        education are written in step 8, from the material in
+        <code>docs/BRIEF.md</code> §1.
+      </p>
+    </Container>
+  </Section>
+</BaseLayout>

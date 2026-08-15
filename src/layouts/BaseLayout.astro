@@ -1,0 +1,77 @@
+---
+import '../styles/global.css';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Internal pages (the styleguide) that shouldn't be indexed. */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = 'Interior architecture portfolio of Lea Kassem.',
+  noindex = false,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <script is:inline>
+      /*
+        Marks the document as animating so global.css can hide pre-animation
+        states without a flash. Inline and in <head> so it runs before first
+        paint; it must never become a module import, which would defer it.
+
+        The timer is the failsafe: if the motion bundle fails to load or
+        throws, it never sets data-motion-ready, the class comes off, and the
+        page is simply static rather than blank. See src/scripts/motion.ts.
+      */
+      (function () {
+        var root = document.documentElement;
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        root.classList.add('motion');
+
+        window.setTimeout(function () {
+          if (!root.dataset.motionReady) root.classList.remove('motion');
+        }, 2000);
+      })();
+    </script>
+  </head>
+  <!--
+    The layout owns the page landmarks — header, main, footer — so a page can
+    never ship without them, and `#main` is guaranteed to be there for the skip
+    link to target. Pages supply the content of `main`, not the element.
+
+    Column layout with `main` growing keeps the footer at the bottom of the
+    viewport on a short page rather than floating halfway up it.
+  -->
+  <body class="flex min-h-dvh flex-col">
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <SiteHeader />
+
+    <main id="main" tabindex="-1" class="flex-1">
+      <slot />
+    </main>
+
+    <SiteFooter />
+
+    <script>
+      import { initMotion } from '../scripts/motion';
+      initMotion();
+    </script>
+  </body>
+</html>

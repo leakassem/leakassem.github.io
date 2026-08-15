@@ -1,0 +1,12 @@
+# Text files are stored with LF in the repository regardless of the platform
+# they were written on. The build runs on Linux in GitHub Actions, so keeping
+# the committed bytes platform-independent means a diff never shows a whole
+# file changed because it was saved on Windows.
+* text=auto eol=lf
+
+# Binary — never touch line endings, never try to diff.
+*.jpg   binary
+*.jpeg  binary
+*.png   binary
+*.woff2 binary
+*.pdf   binary

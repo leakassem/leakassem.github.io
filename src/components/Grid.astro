@@ -1,0 +1,53 @@
+---
+/**
+ * Column grid. Two shapes:
+ *
+ *   cols={n}      — an even n-up that steps down on narrow screens
+ *   cols="12"     — the raw 12-column grid, for layouts that place children
+ *                   themselves (the ⅓ text / ⅔ images split on her sheets)
+ *
+ * gap="seam" is the tight one — images butting together with a thin white
+ * gutter, as in the sheet layouts. Pair it with `stagger` to animate children
+ * in one after another.
+ */
+interface Props {
+  cols?: 1 | 2 | 3 | 4 | 12;
+  gap?: 'seam' | 'tight' | 'default' | 'wide' | 'none';
+  stagger?: boolean;
+  as?: keyof HTMLElementTagNameMap;
+  class?: string;
+}
+
+// Annotated rather than inferred — see the note in Container.astro.
+const {
+  cols = 2,
+  gap = 'default',
+  stagger = false,
+  as: Tag = 'div',
+  class: className = '',
+}: Props = Astro.props;
+
+// Spelled out rather than interpolated — Tailwind scans for literal names.
+const columns = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-1 sm:grid-cols-2',
+  3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+  4: 'grid-cols-2 lg:grid-cols-4',
+  12: 'grid-cols-4 md:grid-cols-12',
+} as const;
+
+const gaps = {
+  none: 'gap-0',
+  seam: 'gap-seam',
+  tight: 'gap-4',
+  default: 'gap-gutter',
+  wide: 'gap-block',
+} as const;
+---
+
+<Tag
+  class:list={['grid', columns[cols], gaps[gap], className]}
+  data-reveal={stagger ? 'grid' : undefined}
+>
+  <slot />
+</Tag>

@@ -1,0 +1,27 @@
+{
+  "name": "lea-kassem-portfolio",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^5.13.5",
+    "gsap": "^3.13.0",
+    "lenis": "^1.3.11"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@tailwindcss/vite": "^4.1.13",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.9.2"
+  },
+  "//overrides": "Astro 5 depends on Vite 6. @tailwindcss/vite allows ^5.2 || ^6 || ^7 || ^8, so npm greedily installs Vite 8 and we end up with two copies, which makes `astro check` report incompatible Plugin types. Pinning to 6 gives a single Vite that both packages support. Revisit when Astro moves to Vite 8.",
+  "overrides": {
+    "vite": "^6.4.1"
+  }
+}

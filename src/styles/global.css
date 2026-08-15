@@ -1,0 +1,356 @@
+@import 'tailwindcss';
+
+/*
+  Design system — derived from Lea's existing portfolio layouts (docs/BRIEF.md §2).
+
+  The identity is: white card on warm grey, one thin black rule, a single
+  grotesque doing all the work through weight and tracking rather than through
+  a second typeface. Almost no colour — the work supplies it.
+
+  Everything visual should come from a token in here. If a page needs a value
+  that isn't below, add it here rather than hard-coding it at the call site.
+  Rendered proof of the whole system lives at /styleguide.
+*/
+
+/* ---------------------------------------------------------------- typeface */
+
+/*
+  Self-hosted, no CDN and no external fetch. One 48 KB variable file covers
+  every weight from Light (300) through Bold (700). Provenance, licence and
+  swap instructions: src/assets/fonts/README.md
+*/
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../assets/fonts/inter-latin-variable.woff2') format('woff2-variations');
+  /* Latin only. Covers the French in her education line — É, ç, œ are all here. */
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ------------------------------------------------------------------ tokens */
+
+/*
+  `static` because Tailwind otherwise drops theme variables no utility happens
+  to reference — which would take the motion easings out of :root entirely and
+  make /styleguide report a token that isn't there. A design system's tokens
+  should all exist whether or not a page has used one yet. Costs ~400 bytes.
+*/
+@theme static {
+  /* Ground. Her sheets are a white card floating on warm grey. */
+  --color-paper: #ffffff;
+  --color-ground: #e8e8e8;
+  --color-ink: #0a0a0a;
+  --color-muted: #6b6b6b;
+
+  /* The single black hairline. `soft` is for dividers that shouldn't shout. */
+  --color-hairline: #0a0a0a;
+  --color-hairline-soft: rgb(10 10 10 / 0.16);
+
+  --font-display: 'Inter Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-body: 'Inter Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /*
+    Type scale. Fluid between the 375px and 1440px targets so there are no
+    breakpoint jumps in headline sizes. Weight is part of the token: display
+    and headline are bold, title is light — that contrast is the identity.
+  */
+  --text-display: clamp(3rem, 10vw, 9rem);
+  --text-display--line-height: 0.88;
+  --text-display--letter-spacing: -0.035em;
+  --text-display--font-weight: 700;
+
+  --text-headline: clamp(2rem, 5vw, 3.75rem);
+  --text-headline--line-height: 0.95;
+  --text-headline--letter-spacing: -0.025em;
+  --text-headline--font-weight: 700;
+
+  --text-title: clamp(1.375rem, 2.6vw, 2.25rem);
+  --text-title--line-height: 1.15;
+  --text-title--letter-spacing: -0.015em;
+  --text-title--font-weight: 300;
+
+  --text-subhead: clamp(1.0625rem, 1.4vw, 1.25rem);
+  --text-subhead--line-height: 1.45;
+  --text-subhead--font-weight: 400;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.65;
+
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.55;
+
+  --text-label: 0.6875rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.18em;
+  --text-label--font-weight: 600;
+
+  --tracking-label: 0.18em;
+  --tracking-display: -0.035em;
+
+  /*
+    Spacing. `gutter` is the page margin and the standard gap, `section` the
+    vertical rhythm between bands, `seam` the thin white gutter between images
+    that butt together in a grid.
+  */
+  --spacing-gutter: clamp(1.25rem, 4vw, 3.5rem);
+  --spacing-section: clamp(4rem, 9vw, 8rem);
+  --spacing-block: clamp(2rem, 4vw, 3.5rem);
+  --spacing-seam: 0.25rem;
+  --spacing-hair: 1px;
+
+  /*
+    Height of the sticky header. A token because it isn't only the header's
+    business: a first screen that fills the viewport has to subtract it
+    (`.first-screen`), and anything jumped to by hash has to clear it.
+  */
+  --spacing-header: clamp(3.75rem, 6vw, 5rem);
+
+  /* Minimum pointer target. The label type is 11px; fingers are not. */
+  --spacing-tap: 2.75rem;
+
+  /* Measures. `page` is the outer bound, `text` keeps prose near 70ch. */
+  --container-page: 90rem;
+  --container-text: 42rem;
+  --container-narrow: 30rem;
+
+  /*
+    Motion. Slow and weighted, no bounce (docs/BRIEF.md §2). These are the CSS
+    half — the GSAP half lives in src/scripts/motion.ts and must stay in step
+    with them, so change both together.
+  */
+  --ease-quiet: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-weighted: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* -------------------------------------------------------------------- base */
+
+@layer base {
+  html {
+    /* Lenis drives scrolling; native smooth-scroll would fight it. */
+    scroll-behavior: auto;
+    /* No horizontal shift when a short page sits next to a long one. */
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--color-ground);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+
+  /*
+    The sticky header would otherwise cover the top of anything reached by a
+    hash link — including `#main`, which is where the skip link lands.
+  */
+  :target {
+    scroll-margin-top: calc(var(--spacing-header) + var(--spacing-hair));
+  }
+
+  /*
+    `main` carries tabindex="-1" so the skip link can move focus into it. It is
+    a focus target, not a control, and outlining the entire page content is
+    loud for feedback the scroll jump already gives. Controls keep their
+    outline — the rule above is untouched.
+  */
+  main:focus {
+    outline: none;
+  }
+
+  /*
+    Pre-animation states.
+
+    These only apply once the inline script in BaseLayout has added `.motion`
+    to <html>, which it does only when JS is running and reduced motion is not
+    requested. That same script strips the class if the motion bundle hasn't
+    reported in, so a JS failure can never leave content stuck invisible.
+    GSAP's inline styles override all of these.
+  */
+  .motion [data-reveal] {
+    opacity: 0;
+  }
+
+  /* A grid stays visible and hides its children — the stagger is per child. */
+  .motion [data-reveal='grid'] {
+    opacity: 1;
+  }
+
+  .motion [data-reveal='grid'] > * {
+    opacity: 0;
+  }
+
+  /* The clip box stays visible; the image inside it is what animates. */
+  .motion [data-reveal='image'] {
+    opacity: 1;
+  }
+
+  /*
+    Direct child only. `<Picture>` nests an img inside a picture, and hiding
+    both would leave the img at opacity 0 after GSAP has faded the picture in.
+    This has to match what initImageReveals() picks up — the first of
+    img/picture/video in the box, which is the direct child either way.
+  */
+  .motion [data-reveal='image'] > :is(img, picture, video) {
+    opacity: 0;
+  }
+}
+
+/* -------------------------------------------------------------- primitives */
+
+@layer components {
+  /* Tracking-heavy small caps label, as used throughout her sheets. */
+  .label {
+    font-size: var(--text-label);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  /* The signature hairlines. */
+  .rule-v {
+    border-left: var(--spacing-hair) solid var(--color-hairline);
+  }
+
+  .rule-h {
+    border-top: var(--spacing-hair) solid var(--color-hairline);
+  }
+
+  /*
+    Type set vertically alongside the left rule, reading bottom-to-top as on
+    her cover sheet.
+  */
+  .vertical-label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+  /*
+    Clip box for image reveals. The image scales inside it, so the box edge
+    stays put and nothing bleeds over neighbouring content.
+  */
+  .media {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-ground);
+  }
+
+  /*
+    `picture` is in the list because `<Picture>` wraps the img in one, and an
+    inline wrapper of auto height gives the img no percentage to resolve
+    against — the box would collapse to the image's natural size.
+  */
+  .media :is(img, picture, video) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .media :is(img, video) {
+    object-fit: cover;
+  }
+
+  /* ------------------------------------------------------------- site chrome */
+
+  /*
+    Header and footer navigation. Quiet by default, ink on the page you are on.
+
+    The current state is selected on `aria-current` rather than on a class of
+    its own, so the marker a screen reader announces and the one a sighted
+    reader sees are the same fact. `nav.ts` decides which value each link gets.
+  */
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--spacing-tap);
+    color: var(--color-muted);
+    font-size: var(--text-label);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    line-height: 1.2;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 200ms var(--ease-quiet);
+  }
+
+  .nav-link:hover {
+    color: var(--color-ink);
+  }
+
+  .nav-link[aria-current] {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-decoration-thickness: var(--spacing-hair);
+    text-underline-offset: 0.45em;
+  }
+
+  /*
+    Skip link. Parked off-screen rather than hidden — `display: none` and
+    `visibility: hidden` both take an element out of the tab order, which is
+    the one thing this link exists to be in.
+  */
+  .skip-link {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transform: translateY(-120%);
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    padding: 0.875rem var(--spacing-gutter);
+    font-size: var(--text-label);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    text-decoration: none;
+    /* Snaps rather than slides under reduced motion — see the guard below. */
+    transition: transform 180ms var(--ease-quiet);
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+
+  /*
+    A first screen that fills the viewport under the sticky header. `svh` is the
+    small viewport height, so a mobile browser collapsing its own chrome can't
+    leave a strip that has to be scrolled past.
+  */
+  .first-screen {
+    min-height: calc(100svh - var(--spacing-header));
+  }
+}
+
+/*
+  Global reduced-motion guard. Individual GSAP timelines must ALSO check the
+  media query in JS — this only covers CSS-driven motion.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

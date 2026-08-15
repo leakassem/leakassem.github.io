@@ -1,0 +1,74 @@
+---
+import VerticalRule from './VerticalRule.astro';
+
+/**
+ * A band of the page: vertical rhythm, ground tone, and optionally the
+ * signature left rule with a vertical label.
+ *
+ * Section owns vertical space only — put a `Container` inside it for the
+ * horizontal bound and gutters. That split is what lets a band run full-bleed
+ * (an image strip) while its text stays measured.
+ *
+ * space="flush" is for bands whose own content supplies the space, e.g. a
+ * full-height hero.
+ */
+interface Props {
+  tone?: 'ground' | 'paper';
+  space?: 'default' | 'tight' | 'flush';
+  /** Renders the left rule with this label set vertically alongside it. */
+  label?: string;
+  labelAlign?: 'top' | 'center' | 'bottom';
+  /** Rule with no label. Ignored when `label` is set. */
+  rule?: boolean;
+  /** Hairline across the top of the band. */
+  divider?: boolean;
+  id?: string;
+  /** Constrained to real tag names so `<Tag>` keeps its HTML attribute types. */
+  as?: keyof HTMLElementTagNameMap;
+  class?: string;
+}
+
+// Annotated rather than inferred — see the note in Container.astro.
+const {
+  tone = 'ground',
+  space = 'default',
+  label,
+  labelAlign = 'top',
+  rule = false,
+  divider = false,
+  id,
+  as: Tag = 'section',
+  class: className = '',
+}: Props = Astro.props;
+
+const tones = {
+  ground: 'bg-ground text-ink',
+  paper: 'bg-paper text-ink',
+} as const;
+
+const spaces = {
+  default: 'py-section',
+  tight: 'py-block',
+  flush: 'py-0',
+} as const;
+
+const withRule = Boolean(label) || rule;
+---
+
+<Tag
+  id={id}
+  class:list={[tones[tone], spaces[space], divider && 'rule-h', className]}
+>
+  {
+    withRule ? (
+      <div class="gap-gutter flex items-stretch">
+        <VerticalRule label={label} align={labelAlign} />
+        <div class="min-w-0 flex-1">
+          <slot />
+        </div>
+      </div>
+    ) : (
+      <slot />
+    )
+  }
+</Tag>

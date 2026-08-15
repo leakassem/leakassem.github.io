@@ -1,0 +1,115 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Media from '../components/Media.astro';
+import {
+  areaLabel,
+  facetsOf,
+  getProjects,
+  locationOf,
+  roomsOf,
+  rolesOf,
+  sheetsOf,
+  statusLabel,
+  typeLabel,
+  type Facet,
+} from '../lib/projects';
+import { STUDIO_PERIODS } from '../lib/facets';
+
+/*
+  Deliberately unstyled — this is step 3's proof that the content model loads,
+  not the work index. Step 6 replaces it wholesale with the real grid, its
+  filters and its stagger, at which point everything below goes.
+
+  It renders every derived field rather than just the titles, because the point
+  is to catch a wrong area sum or an unmapped city here rather than in step 6.
+*/
+
+const projects = await getProjects();
+const featured = projects.filter((project) => project.data.featured);
+
+const facets = facetsOf(projects);
+const facetGroups: [string, Facet[]][] = [
+  ['Type', facets.type],
+  ['Location', facets.location],
+  ['Status', facets.status],
+  ['Studio', facets.studio],
+];
+---
+
+<BaseLayout title="Work — Lea Kassem" noindex>
+  <div style="padding: 2rem; max-width: 60rem; margin-inline: auto;">
+    <h1>Work</h1>
+
+    <p>
+      <strong>{projects.length} projects</strong>, {featured.length} of them flagged
+      for the home page. Unstyled scaffold — step 6 builds the real index, step 4
+      supplies the images, step 7 makes the slugs below into pages.
+    </p>
+
+    <h2>Facets</h2>
+    <ul>
+      {
+        facetGroups.map(([group, options]) => (
+          <li>
+            <strong>{group}</strong>:{' '}
+            {options.map((option) => `${option.label} (${option.count})`).join(' · ')}
+          </li>
+        ))
+      }
+    </ul>
+
+    <h2>Projects</h2>
+    <ol>
+      {
+        projects.map((project) => (
+          <li style="margin-block: 1.5rem;">
+            <h3>
+              {project.data.title}
+              {project.data.featured && ' ★'}
+            </h3>
+
+            <ul>
+              <li>
+                <code>/work/{project.id}</code>
+              </li>
+              <li>
+                {project.data.studio} · {STUDIO_PERIODS[project.data.studio]}
+              </li>
+              <li>
+                {locationOf(project)}
+                {project.data.development && ` — ${project.data.development}`}
+              </li>
+              <li>
+                {typeLabel(project.data.type)} · {statusLabel(project.data.status)}
+                {areaLabel(project) && ` · ${areaLabel(project)}`}
+              </li>
+              <li>
+                {sheetsOf(project).length === 1 ? 'Sheet' : 'Sheets'}{' '}
+                {sheetsOf(project).join(', ')}
+              </li>
+              {roomsOf(project).length > 0 && <li>{roomsOf(project).join(' / ')}</li>}
+              <li>Role: {rolesOf(project).join('; ')}</li>
+              <li>
+                Images: {project.data.hero ? 'hero' : 'no hero'},{' '}
+                {project.data.gallery.length} in gallery
+              </li>
+            </ul>
+
+            {
+              project.data.hero && (
+                <div style="max-width: 22rem; margin-top: 0.75rem;">
+                  <Media
+                    src={project.data.hero.src}
+                    alt={project.data.hero.alt}
+                    ratio="2/1"
+                    sizes="22rem"
+                  />
+                </div>
+              )
+            }
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</BaseLayout>

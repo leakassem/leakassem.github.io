@@ -1,0 +1,504 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/Container.astro';
+import Grid from '../components/Grid.astro';
+import Media from '../components/Media.astro';
+import Section from '../components/Section.astro';
+import VerticalRule from '../components/VerticalRule.astro';
+
+/*
+  Real project crops rather than the sheet composites they came out of — this
+  page should demonstrate what the site actually ships, and the crops are the
+  material every page will render from step 5 on.
+*/
+import azLiving from '../assets/projects/az-triplex/gallery-01.jpg';
+import qatarPool from '../assets/projects/qatar-villa/gallery-08.jpg';
+import studioLiving from '../assets/projects/8b2-studio-apartment/gallery-01.jpg';
+import b11Terrace from '../assets/projects/b11-apartment/gallery-03.jpg';
+import faqraLiving from '../assets/projects/faqra-duplex-chalet/gallery-01.jpg';
+import k1Kitchen from '../assets/projects/k1-villa/gallery-02.jpg';
+
+/*
+  Internal reference page for the design system — every token, primitive and
+  motion effect on one screen, so a change to global.css can be checked in one
+  place. Not linked from the site and marked noindex.
+
+  Printed token values are filled in from the live computed styles at the
+  bottom of this page, so this page can't drift from global.css.
+*/
+
+const colours = [
+  { token: '--color-paper', fallback: '#ffffff', use: 'The card the work sits on' },
+  { token: '--color-ground', fallback: '#e8e8e8', use: 'Page ground, warm grey' },
+  { token: '--color-ink', fallback: '#0a0a0a', use: 'All type' },
+  { token: '--color-muted', fallback: '#6b6b6b', use: 'Labels, metadata, captions' },
+  { token: '--color-hairline', fallback: '#0a0a0a', use: 'The signature rule' },
+  { token: '--color-hairline-soft', fallback: 'rgb(10 10 10 / 0.16)', use: 'Quiet dividers' },
+];
+
+const typeScale = [
+  { name: 'display', class: 'text-display', use: 'Her name, hero only', sample: 'Lea Kassem' },
+  { name: 'headline', class: 'text-headline', use: 'Section headings', sample: 'Selected work' },
+  { name: 'title', class: 'text-title', use: 'Project titles — light weight against the bold above', sample: 'AZ triplex, Baabda' },
+  { name: 'subhead', class: 'text-subhead', use: 'Standfirst, project intros', sample: 'Living, dining and outdoor across 370 m².' },
+  { name: 'body', class: 'text-body', use: 'Running copy', sample: 'Concept design through technical documentation, FF&E specification and site delivery.' },
+  { name: 'small', class: 'text-small', use: 'Captions, metadata values', sample: 'Completed · Baabda, Lebanon' },
+];
+
+const spacing = [
+  { token: '--spacing-gutter', fallback: 'clamp(1.25rem, 4vw, 3.5rem)', use: 'Page margin and standard gap', class: 'w-gutter' },
+  { token: '--spacing-section', fallback: 'clamp(4rem, 9vw, 8rem)', use: 'Vertical rhythm between bands', class: 'w-section' },
+  { token: '--spacing-block', fallback: 'clamp(2rem, 4vw, 3.5rem)', use: 'Between blocks inside a band', class: 'w-block' },
+  { token: '--spacing-seam', fallback: '0.25rem', use: 'Thin white gutter between butted images', class: 'w-seam' },
+  { token: '--spacing-hair', fallback: '1px', use: 'Every rule on the site', class: 'w-hair' },
+  { token: '--spacing-header', fallback: 'clamp(3.75rem, 6vw, 5rem)', use: 'Sticky header height — what a full first screen subtracts', class: 'w-header' },
+  { token: '--spacing-tap', fallback: '2.75rem', use: 'Minimum pointer target on small type', class: 'w-tap' },
+];
+
+const gridDemo = [
+  { src: azLiving, alt: 'Double-height living room with a marble feature wall and olive armchairs' },
+  { src: qatarPool, alt: 'A lit swimming pool at dusk, with ranked sun loungers and festoon lighting' },
+  { src: studioLiving, alt: 'Studio apartment with a timber feature wall above a linear fireplace' },
+  { src: b11Terrace, alt: 'Terrace at dusk with an outdoor armchair beside folding grey screens' },
+  { src: faqraLiving, alt: 'Chalet living room in timber slats around a terrazzo-clad fireplace' },
+  { src: k1Kitchen, alt: 'Show kitchen with red dining chairs at a white table on a timber floor' },
+];
+---
+
+<BaseLayout
+  title="Styleguide — Lea Kassem"
+  description="Internal design system reference."
+  noindex
+>
+  <!-- ------------------------------------------------------------ header -->
+  <Section tone="paper" space="tight" label="Styleguide" labelAlign="top">
+    <Container>
+      <p class="label text-muted">Internal reference</p>
+      <h1 class="font-display text-headline mt-4">Design system</h1>
+      <p class="text-subhead text-muted mt-6 max-w-text">
+        Every token, layout primitive and motion effect in one place. Nothing
+        on this page is site content — it exists so a change to
+        <code>global.css</code> can be checked against the whole system at once.
+        Scroll slowly: the motion section below only fires on entry.
+      </p>
+    </Container>
+  </Section>
+
+  <!-- ------------------------------------------------------------ colour -->
+  <Section tone="ground" divider label="Colour">
+    <Container>
+      <h2 class="font-display text-title">Colour</h2>
+      <p class="text-small text-muted mt-2 max-w-text">
+        Almost no colour by design — the work supplies it. Six tokens, and the
+        site should never introduce a seventh without a reason.
+      </p>
+
+      <Grid cols={3} gap="default" class="mt-block">
+        {
+          colours.map((colour) => (
+            <div>
+              <div
+                class="ring-hairline-soft aspect-[3/2] w-full ring-1 ring-inset"
+                style={`background-color: var(${colour.token})`}
+              />
+              <p class="label mt-3">{colour.token.replace('--color-', '')}</p>
+              <p class="text-small text-muted mt-1">
+                <code data-token={colour.token}>{colour.fallback}</code>
+              </p>
+              <p class="text-small text-muted">{colour.use}</p>
+            </div>
+          ))
+        }
+      </Grid>
+    </Container>
+  </Section>
+
+  <!-- ---------------------------------------------------------- typeface -->
+  <Section tone="paper" divider label="Typeface">
+    <Container>
+      <h2 class="font-display text-title">Typeface</h2>
+      <p class="text-small text-muted mt-2 max-w-text">
+        Inter Variable, self-hosted as one 48 KB latin file covering the whole
+        weight axis. It stands in for the Helvetica-like grotesque in her
+        sheets: a single family, with weight and tracking doing all the
+        differentiation. No CDN, no external request.
+      </p>
+
+      <div class="mt-block space-y-6">
+        <p class="font-display text-4xl font-light tracking-display">
+          Light 300 — project titles
+        </p>
+        <p class="font-display text-4xl font-normal tracking-display">
+          Regular 400 — running copy
+        </p>
+        <p class="font-display text-4xl font-semibold tracking-display">
+          Semibold 600 — labels
+        </p>
+        <p class="font-display text-4xl font-bold tracking-display">
+          Bold 700 — her name, section headings
+        </p>
+        <p class="label text-muted">
+          Label · 11px · 0.18em tracking · uppercase
+        </p>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- -------------------------------------------------------- type scale -->
+  <Section tone="ground" divider label="Type scale">
+    <Container>
+      <h2 class="font-display text-title">Type scale</h2>
+      <p class="text-small text-muted mt-2 max-w-text">
+        Fluid between the 375 and 1440px targets, so headline sizes never jump
+        at a breakpoint. Weight is baked into the token — display and headline
+        are bold, title is light, and that contrast is the identity.
+      </p>
+
+      <div class="mt-block space-y-block">
+        {
+          typeScale.map((step) => (
+            <div class="border-hairline-soft border-t pt-4">
+              <p class="label text-muted">
+                {step.name} — {step.use}
+              </p>
+              <p class:list={['font-display mt-3', step.class]}>{step.sample}</p>
+            </div>
+          ))
+        }
+      </div>
+    </Container>
+  </Section>
+
+  <!-- ----------------------------------------------------------- spacing -->
+  <Section tone="paper" divider label="Spacing">
+    <Container>
+      <h2 class="font-display text-title">Spacing &amp; rules</h2>
+      <p class="text-small text-muted mt-2 max-w-text">
+        Five spacing tokens. Anything that isn't one of these is a one-off and
+        probably shouldn't be.
+      </p>
+
+      <div class="mt-block space-y-5">
+        {
+          spacing.map((step) => (
+            <div class="flex items-center gap-6">
+              <div class="w-56 shrink-0">
+                <p class="label">{step.token.replace('--spacing-', '')}</p>
+                <p class="text-small text-muted">
+                  <code data-token={step.token}>{step.fallback}</code>
+                </p>
+              </div>
+              <div class:list={['bg-ink h-6 shrink-0', step.class]} />
+              <p class="text-small text-muted">{step.use}</p>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="mt-block grid gap-block sm:grid-cols-2">
+        <div>
+          <p class="label text-muted">Horizontal rule — .rule-h</p>
+          <div class="rule-h mt-4"></div>
+        </div>
+        <div>
+          <p class="label text-muted">Vertical rule + label — VerticalRule</p>
+          <div class="mt-4 flex h-32 items-stretch">
+            <VerticalRule label="Residential" align="top" />
+          </div>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- -------------------------------------------------------- primitives -->
+  <Section tone="ground" divider label="Primitives">
+    <Container>
+      <h2 class="font-display text-title">Layout primitives</h2>
+      <p class="text-small text-muted mt-2 max-w-text">
+        Five components. Section owns vertical space and the left rule,
+        Container owns the horizontal bound and gutters, Grid owns columns,
+        Media owns every picture. Every band on this page is built from them.
+      </p>
+
+      <div class="mt-block">
+        <p class="label text-muted">Container widths</p>
+        <div class="mt-4 space-y-2">
+          <div class="bg-ink/85 max-w-page h-8 w-full"></div>
+          <p class="text-small text-muted">page — 90rem, the outer bound</p>
+          <div class="bg-ink/60 max-w-text h-8 w-full"></div>
+          <p class="text-small text-muted">text — 42rem, prose measure (~70ch)</p>
+          <div class="bg-ink/40 max-w-narrow h-8 w-full"></div>
+          <p class="text-small text-muted">narrow — 30rem, captions and metadata</p>
+        </div>
+      </div>
+
+      <div class="mt-block">
+        <p class="label text-muted">Grid — cols=3, gap="default"</p>
+        <Grid cols={3} gap="default" class="mt-4">
+          <div class="bg-paper ring-hairline-soft h-24 ring-1 ring-inset"></div>
+          <div class="bg-paper ring-hairline-soft h-24 ring-1 ring-inset"></div>
+          <div class="bg-paper ring-hairline-soft h-24 ring-1 ring-inset"></div>
+        </Grid>
+      </div>
+
+      <div class="mt-block">
+        <p class="label text-muted">
+          Grid — cols=4, gap="seam" (images butted together)
+        </p>
+        <Grid cols={4} gap="seam" class="mt-4">
+          <div class="bg-ink/85 h-24"></div>
+          <div class="bg-ink/85 h-24"></div>
+          <div class="bg-ink/85 h-24"></div>
+          <div class="bg-ink/85 h-24"></div>
+        </Grid>
+      </div>
+
+      <div class="mt-block">
+        <p class="label text-muted">
+          Grid — cols=12, the ⅓ text / ⅔ images split from her sheets
+        </p>
+        <Grid cols={12} gap="default" class="mt-4">
+          <div class="bg-paper ring-hairline-soft col-span-4 p-4 ring-1 ring-inset">
+            <p class="label text-muted">Project details</p>
+            <p class="text-small text-muted mt-2">Text column — 4 of 12</p>
+          </div>
+          <div class="bg-ink/85 col-span-4 md:col-span-8"></div>
+        </Grid>
+      </div>
+
+      <div class="mt-block">
+        <p class="label text-muted">
+          Media — the clip box, the responsive variants and the reveal
+        </p>
+        <Grid cols={3} gap="default" class="mt-4">
+          <div>
+            <Media
+              src={k1Kitchen}
+              alt="Show kitchen with red dining chairs at a white table on a timber floor"
+              sizes="(min-width: 640px) 20rem, 100vw"
+            />
+            <p class="text-small text-muted mt-2">
+              No ratio — the box takes the file's own, which is the honest
+              default for a gallery of mixed crops.
+            </p>
+          </div>
+          <div>
+            <Media
+              src={k1Kitchen}
+              alt="Show kitchen with red dining chairs at a white table on a timber floor"
+              ratio="1/1"
+              sizes="(min-width: 640px) 20rem, 100vw"
+            />
+            <p class="text-small text-muted mt-2">
+              ratio="1/1" — the box crops via object-fit rather than
+              distorting what is inside it.
+            </p>
+          </div>
+          <div>
+            <Media
+              src={k1Kitchen}
+              alt="Show kitchen with red dining chairs at a white table on a timber floor"
+              ratio="21/9"
+              sizes="(min-width: 640px) 20rem, 100vw"
+            />
+            <p class="text-small text-muted mt-2">
+              ratio="21/9" — every box reserves its space before the image
+              decodes, so nothing on the page shifts.
+            </p>
+          </div>
+        </Grid>
+        <p class="text-small text-muted mt-4 max-w-text">
+          Media emits AVIF, WebP and a JPEG fallback at a ladder of widths
+          that stops at the source width — upscaling a soft crop only makes a
+          bigger soft crop. <code>sizes</code> is required: without it the
+          browser assumes 100vw and pulls the largest variant for a thumbnail.
+        </p>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- ------------------------------------------------------------- chrome -->
+  <Section tone="paper" divider label="Chrome">
+    <Container>
+      <h2 class="font-display text-title">Site chrome</h2>
+      <p class="text-small text-muted mt-2 max-w-text">
+        The header, footer and skip link are rendered by
+        <code>BaseLayout</code>, which also owns the <code>main</code> landmark
+        — a page supplies the content of <code>main</code>, never the element,
+        so no page can ship without its landmarks or without
+        <code>#main</code> for the skip link to target. Both are visible on
+        this page: scroll up and down.
+      </p>
+
+      <div class="mt-block">
+        <p class="label text-muted">Navigation links</p>
+        <p class="text-small text-muted mt-2 max-w-text">
+          Quiet by default, ink and underlined on the page you are on. The
+          current state is selected on <code>aria-current</code> rather than a
+          class of its own, so what a screen reader announces and what a
+          sighted reader sees are the same fact. <code>src/lib/nav.ts</code>
+          holds the route list and decides which value each link gets —
+          <code>page</code> for the exact route, <code>true</code> for an
+          ancestor, which is how <code>/work/&lt;slug&gt;</code> keeps Work lit.
+        </p>
+        <ul class="gap-gutter mt-4 flex items-center">
+          <li><a href="/styleguide" class="nav-link">Default</a></li>
+          <li>
+            <a href="/styleguide" class="nav-link" aria-current="page">
+              Current
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="mt-block">
+        <p class="label text-muted">Skip link</p>
+        <p class="text-small text-muted mt-2 max-w-text">
+          Parked off-screen rather than hidden — <code>display: none</code> and
+          <code>visibility: hidden</code> both take an element out of the tab
+          order, which is the one thing it exists to be in. Press Tab from the
+          top of the page to see it.
+        </p>
+      </div>
+
+      <div class="mt-block">
+        <p class="label text-muted">No mobile menu</p>
+        <p class="text-small text-muted mt-2 max-w-text">
+          Three routes and a wordmark fit on one line at 375px, so there is no
+          toggle, no overlay, no focus trap and no JavaScript — the nav behaves
+          the same whether the motion bundle loads or not. The header sticks
+          rather than hiding on scroll, which is also the only one of those
+          options with nothing to animate and so nothing to no-op under
+          reduced motion.
+        </p>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- ------------------------------------------------------------ motion -->
+  <Section tone="paper" divider label="Motion">
+    <Container>
+      <h2 class="font-display text-title">Motion</h2>
+      <p class="text-small text-muted mt-2 max-w-text">
+        Slow, weighted, precise — no bounce, no spin. Pages opt in with data
+        attributes and never write their own tweens. Each effect below fires
+        once, on entry; reload to see them again.
+      </p>
+      <p class="text-small text-muted mt-4 max-w-text">
+        <strong>Reduced motion:</strong> every effect no-ops under
+        <code>prefers-reduced-motion: reduce</code>, including Lenis smooth
+        scroll, and nothing is left invisible. Test it in DevTools →
+        Rendering → Emulate CSS media feature, or turn on the OS setting.
+      </p>
+    </Container>
+  </Section>
+
+  <Section tone="paper" space="tight">
+    <Container>
+      <p class="label text-muted">data-reveal — fade and rise</p>
+      <div class="bg-ground mt-4 p-8" data-reveal>
+        <p class="text-subhead max-w-text">
+          The default reveal for any block of content. Rises 24px over 1.1s on
+          a long ease-out.
+        </p>
+      </div>
+    </Container>
+  </Section>
+
+  <Section tone="paper" space="tight">
+    <Container>
+      <p class="label text-muted">data-reveal="heading" — line mask reveal</p>
+      <h3
+        class="font-display text-headline max-w-text mt-4"
+        data-reveal="heading"
+      >
+        Each line rises out from behind a clip edge, one after another
+      </h3>
+    </Container>
+  </Section>
+
+  <Section tone="paper" space="tight">
+    <Container>
+      <p class="label text-muted">data-reveal="image" — scale 1.06 → 1</p>
+      <Media
+        src={azLiving}
+        alt="Double-height living room with a marble feature wall and olive armchairs"
+        ratio="2/1"
+        sizes="(min-width: 1024px) 60rem, 100vw"
+        class="mt-4"
+      />
+      <p class="text-small text-muted mt-3">
+        The .media box holds its edge while the image settles inside it, so
+        the frame never moves. Media turns the reveal on by default.
+      </p>
+    </Container>
+  </Section>
+
+  <Section tone="paper" space="tight">
+    <Container>
+      <p class="label text-muted">
+        Grid stagger — &lt;Grid stagger /&gt;, children 70ms apart
+      </p>
+      <Grid cols={3} gap="seam" stagger class="mt-4">
+        {
+          gridDemo.map((item) => (
+            <Media
+              src={item.src}
+              alt={item.alt}
+              ratio="4/3"
+              sizes="(min-width: 640px) 20rem, 100vw"
+              reveal={false}
+            />
+          ))
+        }
+      </Grid>
+      <p class="text-small text-muted mt-3">
+        The grid owns its children's entrance, so each Media is passed
+        reveal={false} — two tweens on the same opacity fight each other.
+      </p>
+    </Container>
+  </Section>
+
+  <Section tone="paper" space="tight">
+    <Container>
+      <p class="label text-muted">
+        data-parallax — scroll-linked drift, hero imagery only
+      </p>
+      <Media
+        src={faqraLiving}
+        alt="Chalet living room in timber slats around a terrazzo-clad fireplace"
+        ratio="2/1"
+        sizes="(min-width: 1024px) 60rem, 100vw"
+        parallax={10}
+        class="mt-4"
+      />
+      <p class="text-small text-muted mt-3">
+        The image is 24% taller than its box and offset, so the drift never
+        exposes an edge. Passing parallax turns the scale-in off, since both
+        animate the same element. Never applied to body text.
+      </p>
+    </Container>
+  </Section>
+
+  <!-- ------------------------------------------------------------ footer -->
+  <Section tone="ground" divider space="tight">
+    <Container>
+      <p class="label text-muted">
+        Styleguide · not indexed · not linked from the site
+      </p>
+    </Container>
+  </Section>
+
+  <script>
+    /*
+      Overwrites the printed token values with what the browser actually
+      computed, so this page reports global.css rather than a copy of it.
+    */
+    const style = getComputedStyle(document.documentElement);
+
+    document.querySelectorAll<HTMLElement>('[data-token]').forEach((el) => {
+      const value = style.getPropertyValue(el.dataset.token!).trim();
+      if (value) el.textContent = value;
+    });
+  </script>
+</BaseLayout>

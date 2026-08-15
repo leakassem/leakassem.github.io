@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import VerticalRule from '../components/VerticalRule.astro';
+
+/*
+  Placeholder. The real home page is step 5 in work.md — this exists so the
+  design system has somewhere to be seen in situ, and it uses only step 2's
+  primitives inside step 4b's chrome.
+*/
+---
+
+<BaseLayout title="Lea Kassem — Interior Architect">
+  <div class="first-screen flex p-4 md:p-8">
+    <div class="bg-paper flex flex-1">
+      <div class="flex flex-1 gap-6 p-8 md:gap-10 md:p-16">
+        <VerticalRule label="Portfolio" align="bottom" />
+
+        <div class="flex flex-1 flex-col justify-end">
+          <h1 class="font-display text-display" data-reveal="heading">
+            Lea Kassem
+          </h1>
+
+          <p class="label text-muted mt-6" data-reveal>Interior Architect</p>
+
+          <p class="text-small text-muted max-w-narrow mt-16" data-reveal>
+            Placeholder page — the home page is built in step 5. The projects
+            are in the nav above, and the design system everything is built
+            from is at <a
+              href="/styleguide"
+              class="hover:text-ink underline underline-offset-4">/styleguide</a
+            >, which is internal and goes unlinked once this page is real.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
