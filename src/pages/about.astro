@@ -4,6 +4,7 @@ import Container from '../components/Container.astro';
 import Grid from '../components/Grid.astro';
 import Media from '../components/Media.astro';
 import Section from '../components/Section.astro';
+import portrait from '../assets/portrait/lea-kassem.jpg';
 import {
   EDUCATION,
   EXPERIENCE,
@@ -13,7 +14,6 @@ import {
   STAGES,
   periodOf,
 } from '../lib/cv';
-import { getProjects } from '../lib/projects';
 
 /*
   About — her CV as a page (docs/BRIEF.md §1).
@@ -33,30 +33,19 @@ import { getProjects } from '../lib/projects';
   One photograph, because a page of CV type with no image on an interior
   architecture site argues against itself.
 
-  B11 apartment's hero: at 1306px the calmest and most composed crop on the
-  site after 3B apartment's, and 3B already leads the home page's first screen.
-  On /work this same picture is one card among seventeen and on the home page
-  one of six, so it is not carrying another page's opening — which is the
-  repetition the home lead was chosen to avoid.
+  It is Lea herself, in a finished interior — the one page on the site where a
+  person belongs, since this is the page about her rather than about a project.
+  It replaced B11 apartment's hero, which stood in here while there was no
+  photograph of her: a project picture on /about had to borrow its meaning from
+  /work, where the same file is already a card.
 
-  Read back through the collection by slug rather than imported out of
-  src/assets, so it keeps the alt text written alongside it and swaps with the
-  rest of that project's images when Lea's originals land (open item 1).
+  The file is the only image on the site that isn't a project's, so it lives in
+  src/assets/portrait/ and is imported directly rather than read back through
+  the content collection. It is cropped to 4:5 and carries no camera metadata.
 
-  Deliberately no `transitionName`: /work gives this photograph one on its
-  card, and a second element carrying that name here would make navigating
-  from the index morph a project card into the About page's picture.
+  Deliberately no `transitionName` — nothing else on the site shows this
+  picture, so there is no pair for it to morph with.
 */
-const PORTRAIT = 'b11-apartment';
-
-const projects = await getProjects();
-const portrait = projects.find((project) => project.id === PORTRAIT);
-
-if (!portrait?.data.hero) {
-  throw new Error(`about page: no hero image on "${PORTRAIT}" to illustrate with`);
-}
-
-const portraitImage = portrait.data.hero;
 ---
 
 <BaseLayout
@@ -67,7 +56,7 @@ const portraitImage = portrait.data.hero;
   <Section tone="paper" label="About" divider>
     <Container>
       <Grid cols={12} gap="default">
-        <div class="col-span-4 md:col-span-5">
+        <div class="col-span-4 md:col-span-5 lg:col-span-6">
           <p class="label text-muted" data-reveal>Beirut, Lebanon</p>
 
           <h1 class="font-display text-headline mt-4" data-reveal="heading">
@@ -95,12 +84,12 @@ const portraitImage = portrait.data.hero;
           and the same reasoning the detail hero and the home page's lead
           photograph were settled on.
         -->
-        <div class="col-span-4 md:col-span-7">
+        <div class="col-span-4 md:col-span-6 md:col-start-7 lg:col-span-5 lg:col-start-8">
           <Media
-            src={portraitImage.src}
-            alt={portraitImage.alt}
-            ratio="2/1"
-            sizes="(min-width: 90rem) 47rem, (min-width: 768px) 55vw, 100vw"
+            src={portrait}
+            alt="Lea Kassem seated in a completed living room, a potted palm behind her and a tall arched mirror against the far wall."
+            ratio="4/5"
+            sizes="(min-width: 90rem) 33rem, (min-width: 1024px) 40vw, (min-width: 768px) 48vw, 100vw"
             priority
             reveal={false}
           />

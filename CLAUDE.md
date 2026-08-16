@@ -264,6 +264,13 @@ adding anything visual, and update it when the system changes.
   `src/assets/sheets/` and will be replaced with Lea's originals later. Reference
   them by project slug and role (`hero`, `gallery`), never by sheet number or
   crop coordinates, so the swap is a file drop rather than a refactor.
+- **One image on the site is not a project's** — `src/assets/portrait/lea-kassem.jpg`,
+  the photograph of Lea in `/about`'s intro. It has no project to hang it on, so
+  that page imports it directly rather than reading it back through the content
+  collection, and it lives outside `src/assets/projects/`. It is cropped to 4:5
+  and re-encoded at 1600px with no EXIF — a replacement should be prepared the
+  same way, since a phone original carries metadata and a width nothing renders.
+  Swapping it is an overwrite plus a re-check of the alt text.
 - **Pages render pictures through `Media`**, never a hand-written `<Image>` /
   `<Picture>`, and never a bare `<img>` with a `/public` path. GitHub Pages
   cannot resize images, so every responsive variant is generated at build time —

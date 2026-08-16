@@ -111,6 +111,9 @@ state of the project.
 | 2026-08-16 | A project's card is **upscaled to 1200px wide**, against the variant-ladder rule | The ladder stops at the source width because a bigger soft crop is no better than the crop. A social card is where that trade reverses: under about 600px wide, LinkedIn and Facebook render a small thumbnail instead of a large card, and 12 of the 17 heroes are under 1200px. When Lea's originals land (open item 1) the upscale disappears with no code change |
 | 2026-08-16 | **`--color-muted` darkened `#6b6b6b` → `#666666`** | Found by the audit, not by eye: muted text on the *ground* was 4.34:1, under the 4.5:1 minimum, and that is the nav, the footer and every vertical label. `#666666` is 4.69:1 on ground and 5.74:1 on paper. It also means muted can never be dimmed with `opacity` on the ground — which is why `.chip-count` keeps its 0.6 only on a checked chip, where the text is paper on ink and has 7.3:1 to spend |
 | 2026-08-16 | **A `noindex` page gets no `canonical` and no `og:url`** | The 404 is served at whatever address was mistyped, so any canonical it names is a lie — and Astro builds it to `/404.html`, meaning the obvious `/404/` isn't even a URL. A page asking not to be indexed has no business nominating one |
+| 2026-08-16 | **A photograph of Lea replaces B11 apartment's hero on `/about`** — supersedes the B11 entry above | The intro band is about her, and it was illustrated with a project picture only because there was no photograph of her; B11's hero was borrowing its meaning from `/work`, where the same file is a card. Owner supplied one, so the stand-in has done its job. B11 is untouched on `/work` |
+| 2026-08-16 | The portrait is **4:5 in five columns**, not 2:1 in seven | A standing figure is a portrait-shaped subject: `Media` covers rather than distorts, so keeping the old 2:1 box would have cropped her to a strip through the waist. The column count comes down 7 → 5 so the taller box doesn't tower over the text, and the image takes six columns at the 768–1024 step, where five left it at 245px |
+| 2026-08-16 | The photograph is **cropped and re-encoded into `src/assets/portrait/`**, not dropped in whole | Three things at once: the 4:5 crop is anchored to the bottom edge, which puts her head a third down the frame and keeps the ottoman clear of the edge; 2731×4096 comes down to 1600×2000, which is 2× the widest it ever renders and stops the ladder emitting a 2731px variant nothing asks for; and re-encoding drops the EXIF and ICC the phone wrote. It is the first image on the site that isn't a project's, hence its own directory rather than `src/assets/projects/` |
 | 2026-08-16 | The favicon is **drawn as geometry**, not set as `<text>` | It was `<text>Helvetica</text>`, which depends on whoever rasterises it having that font — a browser tab, an OS bookmark, or sharp generating the 180×180 apple-touch icon. Rectangles and one path have no such dependency, and the L is one path rather than two rects because abutting shapes leave a seam when antialiased |
 
 ---
@@ -818,7 +821,8 @@ and the address is reachable without ever appearing in the HTML.
   through `yearsAt()` now, so a correction is one edit. Output is unchanged:
   all 17 project pages still read *Design in Frame · 2020–2022* (12) and *Step
   Into Detail · 2022–2025* (5).
-- **`/about`** — six bands: the bio against B11 apartment's hero, the six
+- **`/about`** — six bands: the bio against a photograph (B11 apartment's hero
+  when this step shipped; a portrait of Lea since 2026-08-16), the six
   project stages numbered, the experience timeline, skills / software /
   languages, education, and a contact link. Everything printed comes out of
   `cv.ts`; the timeline and the education list are `.rule-list-split`, the same
