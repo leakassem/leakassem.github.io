@@ -2,21 +2,41 @@
 import { ClientRouter } from 'astro:transitions';
 
 import '../styles/global.css';
+import interFont from '../assets/fonts/inter-latin-variable.woff2?url';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import { SITE_CARD, type SocialImage } from '../lib/social';
 
 interface Props {
   title: string;
   description?: string;
   /** Internal pages (the styleguide) that shouldn't be indexed. */
   noindex?: boolean;
+  /**
+   * The card a shared link shows. Defaults to the site's own; a project page
+   * passes its hero instead — see `socialImageFor()`.
+   */
+  image?: SocialImage;
 }
 
 const {
   title,
   description = 'Interior architecture portfolio of Lea Kassem.',
   noindex = false,
+  image = SITE_CARD,
 } = Astro.props;
+
+/*
+  Absolute URLs, because a crawler is not reading this page in place: og:image
+  and og:url are both specified as absolute, and several scrapers simply drop a
+  relative one. `Astro.site` is the deployed origin — see astro.config.mjs.
+
+  The path already carries its trailing slash (`trailingSlash: 'always'`), so
+  the canonical is the URL Pages actually serves rather than the one that 301s
+  to it.
+*/
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const cardUrl = new URL(image.src, Astro.site);
 ---
 
 <!doctype html>
@@ -27,7 +47,57 @@ const {
     <title>{title}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    {/*
+      A page that asks not to be indexed has no business nominating a canonical
+      URL either — and the 404 is served at whatever address was mistyped, so
+      the only honest answer is to say nothing. Same for `og:url` below.
+    */}
+    {!noindex && <link rel="canonical" href={canonical} />}
+
+    {/*
+      The site is light by design — one white card on a warm grey ground. Saying
+      so stops a browser in forced dark mode from inverting form controls and
+      scrollbars against a page that never changes with them.
+    */}
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#ffffff" />
+
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    {/*
+      The typeface is the page — every word on the site is set in it, and it is
+      one 48 KB file. Without this the browser can't discover it until the CSS
+      has parsed, which is a round trip of text set in Arial. `font-display:
+      swap` means that swap is visible rather than merely late.
+    */}
+    <link rel="preload" href={interFont} as="font" type="font/woff2" crossorigin />
+
+    {/*
+      What a pasted link looks like. `SITE_CARD` is the composed card in
+      public/og/; a project page overrides it with its own hero, generated at
+      build time.
+    */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lea Kassem" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {!noindex && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={cardUrl} />
+    <meta property="og:image:width" content={String(image.width)} />
+    <meta property="og:image:height" content={String(image.height)} />
+    <meta property="og:image:alt" content={image.alt} />
+
+    {/*
+      No `twitter:site` or `twitter:creator`: those are handles, and hard rule 2
+      says the site carries none.
+    */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={cardUrl} />
+    <meta name="twitter:image:alt" content={image.alt} />
 
     {/*
       View transitions (docs/BRIEF.md §2). A project's hero carries the same

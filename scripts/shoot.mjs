@@ -9,7 +9,9 @@
 
   It drives an installed Chrome (or Edge) over the DevTools Protocol. No
   Puppeteer, no Playwright, no new dependency — the browser is already on the
-  machine and CDP is a WebSocket, which Node has built in.
+  machine and CDP is a WebSocket, which Node has built in. Finding the browser
+  and opening a page is `scripts/lib/chrome.mjs`, shared with the social-card
+  generator.
 
   Why not just `chrome --headless --window-size=375,812`: on Windows the OS
   clamps the window to a minimum width of roughly 500px, so a 375px shot comes
@@ -31,32 +33,26 @@
   and the script exits non-zero if any page scrolls sideways — that part is a
   check, not a picture.
 */
-import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { openPage, sleep } from './lib/chrome.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, '.shots');
-const PROFILE = path.join(OUT, '.chrome-profile');
+/*
+  Outside the project on purpose: Vite watches the whole tree, and a Chrome
+  profile inside it kills `npm run dev` with EBUSY the moment the watcher meets
+  a locked cookie file.
+*/
+const PROFILE = path.join(os.tmpdir(), 'lea-portfolio-shots-profile');
 const BASE = 'http://localhost:4321';
 const PORT = 9333;
 
-const DEFAULT_ROUTES = ['/', '/work', '/about', '/contact'];
+const DEFAULT_ROUTES = ['/', '/work/', '/about/', '/contact/'];
 const DEFAULT_WIDTHS = [375, 768, 1440];
-
-const CHROMES = [
-  process.env.CHROME_PATH,
-  'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-  'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-  `${process.env.LOCALAPPDATA}\\Google\\Chrome\\Application\\chrome.exe`,
-  'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-  'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
-  '/usr/bin/google-chrome',
-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-].filter(Boolean);
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /* ------------------------------------------------------------------ args */
 
@@ -68,7 +64,16 @@ const value = (name) => {
 };
 
 const widths = (value('widths') ?? '').split(',').filter(Boolean).map(Number);
-const routeArgs = argv.filter((a) => a.startsWith('/'));
+
+/*
+  The site is `trailingSlash: 'always'` (see astro.config.mjs), so `/work` is a
+  404 on the preview server rather than the redirect production would serve.
+  A route typed without the slash is still what anyone would type, so it is
+  completed here rather than rejected.
+*/
+const withSlash = (route) =>
+  route.endsWith('/') || /\.[a-z0-9]+$/i.test(route) ? route : `${route}/`;
+const routeArgs = argv.filter((a) => a.startsWith('/')).map(withSlash);
 
 /** Every route in dist/, so step 7's project pages need no config here. */
 function routesFromDist() {
@@ -85,7 +90,12 @@ function routesFromDist() {
       }
     }
   })(dist);
-  return found.map((r) => (r === '/' ? '/' : r)).sort();
+
+  // The 404 is the one page Astro builds as a bare `.html` rather than a
+  // directory index, because that is the filename GitHub Pages looks for.
+  if (fs.existsSync(path.join(dist, '404.html'))) found.push('/404.html');
+
+  return found.map(withSlash).sort();
 }
 
 const routes = routeArgs.length
@@ -95,57 +105,6 @@ const routes = routeArgs.length
     : DEFAULT_ROUTES;
 
 const useWidths = widths.length ? widths : DEFAULT_WIDTHS;
-
-/* ------------------------------------------------------------------- cdp */
-
-class CDP {
-  constructor(ws) {
-    this.ws = ws;
-    this.id = 0;
-    this.pending = new Map();
-    this.handlers = new Map();
-    ws.addEventListener('message', (e) => {
-      const msg = JSON.parse(e.data);
-      if (msg.id && this.pending.has(msg.id)) {
-        const { res, rej } = this.pending.get(msg.id);
-        this.pending.delete(msg.id);
-        msg.error ? rej(new Error(JSON.stringify(msg.error))) : res(msg.result);
-      } else if (msg.method) {
-        for (const fn of this.handlers.get(msg.method) ?? []) fn(msg.params);
-      }
-    });
-  }
-
-  send(method, params = {}) {
-    const id = ++this.id;
-    return new Promise((res, rej) => {
-      this.pending.set(id, { res, rej });
-      this.ws.send(JSON.stringify({ id, method, params }));
-    });
-  }
-
-  /** Resolves on the next occurrence of an event, then unsubscribes. */
-  once(method) {
-    return new Promise((res) => {
-      const list = this.handlers.get(method) ?? [];
-      const fn = (p) => {
-        this.handlers.set(method, this.handlers.get(method).filter((x) => x !== fn));
-        res(p);
-      };
-      list.push(fn);
-      this.handlers.set(method, list);
-    });
-  }
-}
-
-async function connect(url) {
-  const ws = new WebSocket(url);
-  await new Promise((res, rej) => {
-    ws.addEventListener('open', res, { once: true });
-    ws.addEventListener('error', rej, { once: true });
-  });
-  return new CDP(ws);
-}
 
 /*
   What each shot reports back, so a layout problem shows up as a number rather
@@ -194,9 +153,6 @@ const MEASURE = `JSON.stringify((() => {
 
 /* ------------------------------------------------------------------ main */
 
-const chrome = CHROMES.find((p) => fs.existsSync(p));
-if (!chrome) throw new Error(`no Chrome or Edge found. Tried:\n  ${CHROMES.join('\n  ')}`);
-
 try {
   await fetch(BASE, { signal: AbortSignal.timeout(3000) });
 } catch {
@@ -205,39 +161,11 @@ try {
 
 fs.mkdirSync(OUT, { recursive: true });
 
-const proc = spawn(
-  chrome,
-  [
-    '--headless=new',
-    '--disable-gpu',
-    '--hide-scrollbars',
-    `--remote-debugging-port=${PORT}`,
-    `--user-data-dir=${PROFILE}`,
-    '--no-first-run',
-    '--no-default-browser-check',
-    'about:blank',
-  ],
-  { stdio: 'ignore' }
-);
+const { page, close } = await openPage({ port: PORT, profile: PROFILE });
 
 let failures = 0;
 
 try {
-  let version;
-  for (let i = 0; i < 60 && !version; i++) {
-    try {
-      version = await fetch(`http://127.0.0.1:${PORT}/json/version`).then((r) => r.json());
-    } catch {
-      await sleep(250);
-    }
-  }
-  if (!version) throw new Error('the browser never opened a debugging port');
-
-  const browser = await connect(version.webSocketDebuggerUrl);
-  const { targetId } = await browser.send('Target.createTarget', { url: 'about:blank' });
-  const list = await fetch(`http://127.0.0.1:${PORT}/json/list`).then((r) => r.json());
-  const page = await connect(list.find((t) => t.id === targetId).webSocketDebuggerUrl);
-
   await page.send('Page.enable');
   await page.send('Runtime.enable');
   /*
@@ -287,7 +215,7 @@ try {
       const m = JSON.parse(measured.result.value);
 
       const slug =
-        (route === '/' ? 'home' : route.replace(/^\//, '').replace(/\//g, '-')) +
+        (route === '/' ? 'home' : route.replace(/^\/|\/$/g, '').replace(/\//g, '-')) +
         `-${width}` +
         (flag('full') ? '-full' : '') +
         (flag('bottom') ? '-bottom' : '') +
@@ -348,7 +276,7 @@ try {
     }
   }
 } finally {
-  proc.kill();
+  await close();
 }
 
 console.log(

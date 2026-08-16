@@ -1,5 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#ffffff" />
-  <rect x="6" y="5" width="1.5" height="22" fill="#0a0a0a" />
-  <text x="12" y="23" font-family="Helvetica, Arial, sans-serif" font-size="17" font-weight="700" fill="#0a0a0a">L</text>
+  <!--
+    The site's mark at 16px: the hairline rule, and an L.
+
+    Drawn as rectangles rather than set as <text>. A favicon is rendered by
+    whatever is asking for it — a browser tab, an OS bookmark, sharp when
+    scripts/make-icons.mjs converts this to the apple-touch icon — and only some
+    of those have Helvetica to fall back on. Geometry has no such dependency.
+
+    The rule and the L share a baseline at y=27, as they do in the wordmark.
+  -->
+  <style>
+    .ground { fill: #ffffff; }
+    .mark { fill: #0a0a0a; }
+
+    /* A white tile disappears into a dark browser chrome. */
+    @media (prefers-color-scheme: dark) {
+      .ground { fill: #0a0a0a; }
+      .mark { fill: #ffffff; }
+    }
+  </style>
+
+  <rect class="ground" width="32" height="32" />
+  <rect class="mark" x="6" y="5" width="1.5" height="22" />
+  <!-- One path, not a stem rect plus a foot rect: two abutting shapes leave a
+       seam where their antialiased edges meet when this is rasterised. -->
+  <path class="mark" d="M12 7h4v16h6v4H12z" />
 </svg>

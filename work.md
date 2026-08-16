@@ -12,15 +12,19 @@ To see where things stand: *"where are we"*.
 Every session updates this file before finishing, so it is always the current
 state of the project.
 
-> **Current step: 9 — Polish** (`todo`). Every page in the nav is now real:
-> step 8 built `/about` and `/contact`, so there are no placeholder pages and
-> no stub `noindex` left except `/styleguide`'s. The site is at
-> **https://leakassem.github.io** and every push to `main` redeploys it. A step
-> isn't finished until it's pushed.
+> **The site is finished and open to search.** Steps 1–10 are all `done`: every
+> page in the nav is real, `robots.txt` allows crawling, `/sitemap.xml` is
+> live, and Lighthouse is 98–100 across the board on every public route. The
+> site is at **https://leakassem.github.io** and every push to `main`
+> redeploys it. A step isn't finished until it's pushed.
 >
-> **Step 9 cannot close while `public/robots.txt` is the disallow-all
-> placeholder** — open item 13. It was right for a site whose home page was a
-> placeholder; it is now the only thing keeping a finished site out of search.
+> **Only step 11 — custom domain — is left**, and it is `todo` only in the
+> sense that it waits on someone buying a domain. Nothing else is blocked.
+>
+> What still wants a human rather than a session: **open item 15** (submit the
+> sitemap to Google Search Console and check the card previews — both are
+> browser steps on Lea's accounts), and the standing content items 1, 3, 9, 10
+> and 11, which all need Lea.
 >
 > **Read the view-transitions notes in `CLAUDE.md` before writing any
 > client-side script.** Since step 7 the whole site swaps documents rather than
@@ -28,9 +32,9 @@ state of the project.
 > motion gate. Step 7 hit all three; two of them were silent. Step 8's email
 > link needed the same `astro:after-swap` re-run for the same reason.
 >
-> Step 9 has no blocking open items. Note before the alt-text and a11y audits:
-> the email link is deliberately an anchor **without** an `href` until JS runs
-> — that is not a bug to fix, it is what the JS-off fallback rests on.
+> And two things that look like bugs and aren't: the email link is deliberately
+> an anchor **without** an `href` until JS runs, and `/styleguide` and the 404
+> both fail Lighthouse's `is-crawlable` on purpose — they carry `noindex`.
 
 ---
 
@@ -99,6 +103,15 @@ state of the project.
 | 2026-08-16 | The email anchor carries **no `href` until JS assembles one**, and `.email-link` scopes its underline to `[href]` | The JS-off fallback can't be a `mailto:` — building one would put the address in the markup, which is the thing being avoided. So it is the address spelled out in `<noscript>` for a reader to copy. Which means the element is text, not a control, and must not look like one: no underline, no pointer, until it really is a link |
 | 2026-08-16 | **The CV is one file (`src/lib/cv.ts`), and `STUDIO_PERIODS` derives from it** | `facets.ts` had the two studios' year ranges written out, and `/about` was about to write the same dates out again with months on them. Two copies of one fact is what this project's model exists to prevent. `yearsAt()` spans every stint at an organisation, so Design in Frame is 2020–2022 across the internship and the role after it rather than whichever entry was found first. Output is byte-identical on all 17 project pages |
 | 2026-08-16 | **B11 apartment's hero illustrates `/about`** | A CV page with no image, on an interior architecture site, argues against itself. At 1306px it is the calmest crop on the site after 3B apartment's, and 3B already leads the home page's first screen — B11 is one card among six there, so it isn't carrying another page's opening. No `view-transition-name` on it: `/work` gives that same photograph one, and a second element carrying the name would morph a project card into the About page's picture |
+| 2026-08-16 | **Every internal link carries a trailing slash**, and `trailingSlash: 'always'` | Measured against the live site, not assumed: `/work` and `/work/az-triplex` both return 301 to the slashed form, so every card click and every nav click was paying a redirect round trip. The config setting doesn't rewrite anything — it makes `astro dev` 404 a slashless link, so the next one written is caught locally instead of shipping. `astro preview` stays lenient, which is worth knowing before trusting a preview to prove it |
+| 2026-08-16 | **`robots.txt` allows everything but `/styleguide/`** — closes open item 13 | The placeholder that kept the unfinished site out of search since step 10 is gone, and the file names the sitemap. `/styleguide` is disallowed *and* carries `noindex`, because a `Disallow` alone can still be indexed from an inbound link — the tag is what actually keeps it out |
+| 2026-08-16 | **The sitemap is a route, not `@astrojs/sitemap`** | Same reasoning as writing the deploy workflow out: 21 URLs, all of them already derivable. `src/pages/sitemap.xml.ts` builds them from `NAV` and `hrefOf()`, so it can't list a URL nothing links to or miss one that exists. No `lastmod` — a static build's only honest answer is the deploy date, which would claim every page changed on every push — and no `changefreq`/`priority`, which Google ignores |
+| 2026-08-16 | **Two kinds of social card: composed for the site, the hero for a project** | A link to the site should show her name, which no photograph can do, so `public/og/card.jpg` is the home page's first screen composed at 1200×630. A link to a project should show that project, so `socialImageFor()` crops its hero. One shape (`SocialImage`), one place that renders it (`BaseLayout`) |
+| 2026-08-16 | The card is drawn by **Chrome, not sharp**, and committed | It has to be set in Inter Variable with the site's own tokens; sharp would need the font installed system-wide and would still lay it out differently from the page it quotes. The machinery already existed for `shoot.mjs`, so this is 40 lines of quoted CSS and a screenshot. Committed because a crawler fetches it by a fixed name, unlike everything else `astro:assets` builds |
+| 2026-08-16 | A project's card is **upscaled to 1200px wide**, against the variant-ladder rule | The ladder stops at the source width because a bigger soft crop is no better than the crop. A social card is where that trade reverses: under about 600px wide, LinkedIn and Facebook render a small thumbnail instead of a large card, and 12 of the 17 heroes are under 1200px. When Lea's originals land (open item 1) the upscale disappears with no code change |
+| 2026-08-16 | **`--color-muted` darkened `#6b6b6b` → `#666666`** | Found by the audit, not by eye: muted text on the *ground* was 4.34:1, under the 4.5:1 minimum, and that is the nav, the footer and every vertical label. `#666666` is 4.69:1 on ground and 5.74:1 on paper. It also means muted can never be dimmed with `opacity` on the ground — which is why `.chip-count` keeps its 0.6 only on a checked chip, where the text is paper on ink and has 7.3:1 to spend |
+| 2026-08-16 | **A `noindex` page gets no `canonical` and no `og:url`** | The 404 is served at whatever address was mistyped, so any canonical it names is a lie — and Astro builds it to `/404.html`, meaning the obvious `/404/` isn't even a URL. A page asking not to be indexed has no business nominating one |
+| 2026-08-16 | The favicon is **drawn as geometry**, not set as `<text>` | It was `<text>Helvetica</text>`, which depends on whoever rasterises it having that font — a browser tab, an OS bookmark, or sharp generating the 180×180 apple-touch icon. Rectangles and one path have no such dependency, and the L is one path rather than two rects because abutting shapes leave a seam when antialiased |
 
 ---
 
@@ -118,8 +131,9 @@ state of the project.
 | 10 | **Which projects lead.** Re-picked in step 5 by looking at all 17 heroes: **AD villa, DIFC apartment, K1 villa, AZ triplex, Qatar villa, B11 apartment**, in portfolio order. Chosen for the strength of the photograph and a spread of country, studio and type — not floor area, which is what the first pass used. Separately, **3B apartment leads the home page** with the site's sharpest crop and is deliberately not in the six. Lea should confirm both. One `featured` flag per file, plus `LEAD` in `src/pages/index.astro`. | nothing — the page ships | open |
 | 11 | **Which photo leads each project.** The hero is one deliberate pick per project, in `HERO` in `scripts/crop-sheets.mjs` — chosen for being a perspective render of the main space rather than by size. Lea should confirm all 17. One line each to change, then re-run the script. | nothing — heroes work | open |
 | 12 | **A studio mark is burned into one image.** 3BF apartment's bathroom (`gallery-05.jpg`) carries a small "Design in Frame" logo in the pixels. Unlike the DIFC watermark there's no clean twin to fall back on, and it's the studio she did the work for, so it reads as a credit rather than a mistake — but it's the only image on the site carrying one. Either Lea supplies the unmarked original (open item 1 would cover it) or the image goes. | nothing — it renders fine | open |
-| 13 | **`robots.txt` currently blocks every crawler.** Deliberate — step 10 was pulled forward, so the site is live at Lea's permanent URL while `/work` is still a scaffold and `/about` and `/contact` are stubs. `public/robots.txt` must be replaced with a real one at step 9, or the finished site is never indexed. The file says so in a comment of its own. | Step 9 must not close without this | open |
+| 13 | ~~`robots.txt` blocks every crawler.~~ Resolved 2026-08-16 in step 9: replaced with a real one that allows everything except `/styleguide/` and names the sitemap. | — | done |
 | 14 | **Repo access.** The repo is on Lea's account by design (decision 2026-08-14), so she has to create it and add the maintainer as a collaborator before anything can be pushed. If she'd rather not add a collaborator, the alternatives are a deploy key or working from a fork — both worse. | Step 10's push | open |
+| 15 | **Tell Google the site exists, and look at a shared link.** Lifting `robots.txt` permits crawling; it doesn't cause it. Someone signed in as Lea should add the property in Google Search Console and submit `https://leakassem.github.io/sitemap.xml` — that is the difference between "indexed in weeks" and "indexed eventually". While there: paste the URL into a chat app and a LinkedIn post box and look at the card. The markup and the image are verified locally and over the wire, but no scraper has actually been asked to render one. Both are browser steps on Lea's accounts; `gh` isn't installed and wouldn't help. | nothing — the site works either way | open |
 
 ---
 
@@ -866,7 +880,7 @@ feature working. The requirement is about the served bytes, which is what the
 
 ---
 
-### 9. Polish — `todo`
+### 9. Polish — `done`
 
 **Task:**
 - **Replace `public/robots.txt`** — it is a disallow-all placeholder from step 10
@@ -883,7 +897,107 @@ feature working. The requirement is about the served bytes, which is what the
 
 **Done when:** Lighthouse ≥95 across the board, a11y audit clean. Report scores.
 
-**Outcome:** _(fill in)_
+**Outcome:** the site is findable, shareable, and clean on every audit.
+
+- **`public/robots.txt` is real** — allows everything, disallows `/styleguide/`,
+  names the sitemap. Open item 13 is closed, which is what this step could not
+  close without.
+- **`/sitemap.xml`** is `src/pages/sitemap.xml.ts`, 21 URLs built from `NAV` and
+  `hrefOf()` rather than from a list. No `lastmod`.
+- **`BaseLayout` now owns metadata as well as landmarks** — canonical, Open
+  Graph, Twitter card, `theme-color`, `color-scheme`, the icons, and a preload
+  for the one font file. A page passes `title`, `description`, optionally
+  `noindex`, optionally an `image`; no page writes a `<meta>`.
+- **Two kinds of social card, one shape.** `public/og/card.jpg` is the home
+  page's first screen composed at 1200×630 — her name, the rule, the standfirst
+  and 3B apartment's photograph — drawn by `scripts/make-og.mjs` in Chrome so
+  it is set in the real typeface. A project page overrides it with its own hero
+  through `socialImageFor()`. `src/lib/social.ts` holds both.
+- **A 404 page** (`src/pages/404.astro`), built to `dist/404.html`, which is
+  the filename Pages looks for. Its routes come from `NAV` and its project
+  count is counted. `noindex`, and `BaseLayout` drops the canonical and
+  `og:url` with it — the page is served at whatever address was mistyped.
+- **The favicon is redrawn as geometry** rather than set as `<text>`, so
+  nothing rasterising it needs Helvetica, and `scripts/make-icons.mjs` renders
+  it to a 180×180 `apple-touch-icon.png`.
+- **Every internal link gained a trailing slash**, plus `trailingSlash:
+  'always'`. Measured, not assumed: `/work` and `/work/az-triplex` both 301 on
+  the live site, so every nav click and every card click was paying a redirect.
+- **`scripts/lib/chrome.mjs`** — finding a browser and opening a page, shared
+  by `shoot.mjs` and `make-og.mjs` rather than copied into the second one.
+
+**Two accessibility bugs the audit found, both real:**
+
+1. **Muted text on the ground was 4.34:1**, under the 4.5:1 minimum — the nav,
+   the footer, and every vertical label on the site. `--color-muted` is
+   `#666666` now: 4.69:1 on ground, 5.74:1 on paper.
+2. **The filter chips' counts were 2.29:1.** They were muted at `opacity: 0.6`,
+   and muted is now at the contrast floor, so there is nothing left to dim. The
+   count keeps its 0.6 only on a checked chip, where it is paper on ink at
+   7.3:1.
+
+**Lighthouse** (v13.4.1, mobile preset, against `npm run preview`):
+
+| Route | Perf | A11y | Best practices | SEO |
+|---|---|---|---|---|
+| `/` | 98 | 100 | 100 | 100 |
+| `/work/` | 98 | 100 | 100 | 100 |
+| `/work/ad-villa/` | 100 | 100 | 100 | 100 |
+| `/about/` | 100 | 100 | 100 | 100 |
+| `/contact/` | 100 | 100 | 100 | 100 |
+| `/404.html` | 100 | 100 | 100 | 63 |
+| `/styleguide/` | 98 | 100 | 100 | 66 |
+
+The two SEO scores below 100 are both a single failing audit, `is-crawlable`,
+on the two pages that carry `noindex` on purpose. Every other category is 98 or
+better on every route; CLS is 0 everywhere. What is left in the performance
+column and deliberately not chased: 24 KB of the GSAP/Lenis bundle is unused
+(it is the whole animation language), the stylesheet is render-blocking for
+164 ms, and one card image on the home page is served ~15 KB larger than it
+displays.
+
+**Verified:** `npm run build` — 0 errors, 0 warnings, 0 hints across 33 files;
+23 pages. Read back out of `dist/`: 279 internal links across 23 pages, **zero**
+broken and **zero** missing a trailing slash; all 21 sitemap URLs exist as built
+pages and every indexable page is in the sitemap; one woff2 in `dist/_astro`, so
+the preload URL is the file the CSS asks for.
+
+**The privacy gate again**, now including the new pages and the card: 31 text
+files scanned, no email, no phone-shaped string, no `tel:`, no social handle.
+The only match anywhere is `jack@greensock.com` in the GSAP licence header.
+
+**Alt text — all 130.** Programmatically: none empty, none containing a
+filename or a pipeline word (`sheet`, `crop`, `hero`, `gallery-`), none opening
+"image of", no duplicates within a project or across the site, lengths 61–137
+characters. Then three read against the photograph they describe — Qatar
+villa's hero, JCL's dressing corner, MMA's reception — all three accurate down
+to the materials.
+
+**Keyboard — 85 stops across six routes**, driven with real Tab keystrokes.
+Every stop has a visible focus ring and lands on screen: skip link, wordmark,
+three nav links, then the page's own controls, then the footer. `/work/` is 29
+stops including one per radio group and the reset button; `/work/ad-villa/` is
+25 including all 15 gallery tiles. Accessible names come from Chrome's own
+accessibility tree rather than from the markup — the chips read "VILLAS 5", the
+gallery tiles read their alt text, the email link reads the address.
+
+**Reduced motion and JS off:** every animated property in the stylesheet is
+inside the guard, view-transition pseudo-elements included. 69 routes × 3
+widths in each of three modes — motion on, JS disabled, reduced motion — 207
+shots, no failures, and `hidden=0` on all 138 shots where nothing may be
+hidden.
+
+**A tooling bug found on the way:** `npm run dev` was crashing with `EBUSY`.
+`shoot.mjs` kept its Chrome profile in `.shots/`, inside the tree Vite watches,
+and killing the parent process on Windows leaves the renderers, the GPU process
+and the crashpad handler running — eleven of them were still holding that
+directory open. The profile lives in the temp directory now, and
+`scripts/lib/chrome.mjs` closes the browser with `Browser.close` rather than
+killing it.
+
+**Not verified:** the animations still haven't been watched *in motion*, and no
+scraper has been asked to render the social card — the markup and the image are
+checked, the previews aren't (open item 15).
 
 ---
 

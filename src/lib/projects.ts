@@ -48,9 +48,14 @@ export async function getFeaturedProjects(): Promise<Project[]> {
   return (await getProjects()).filter((project) => project.data.featured);
 }
 
-/** Where a project card links. No page writes this href itself. */
+/**
+ * Where a project card links. No page writes this href itself.
+ *
+ * Trailing slash because that is the URL Pages serves — see `trailingSlash` in
+ * `astro.config.mjs`. The sitemap builds its entries from this same function.
+ */
 export function hrefOf(project: Project): string {
-  return `/work/${project.id}`;
+  return `/work/${project.id}/`;
 }
 
 /**

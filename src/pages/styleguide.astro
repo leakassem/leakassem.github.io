@@ -34,7 +34,7 @@ const colours = [
   { token: '--color-paper', fallback: '#ffffff', use: 'The card the work sits on' },
   { token: '--color-ground', fallback: '#e8e8e8', use: 'Page ground, warm grey' },
   { token: '--color-ink', fallback: '#0a0a0a', use: 'All type' },
-  { token: '--color-muted', fallback: '#6b6b6b', use: 'Labels, metadata, captions' },
+  { token: '--color-muted', fallback: '#666666', use: 'Labels, metadata, captions' },
   { token: '--color-hairline', fallback: '#0a0a0a', use: 'The signature rule' },
   { token: '--color-hairline-soft', fallback: 'rgb(10 10 10 / 0.16)', use: 'Quiet dividers' },
 ];
@@ -355,9 +355,9 @@ const gridDemo = [
           ancestor, which is how <code>/work/&lt;slug&gt;</code> keeps Work lit.
         </p>
         <ul class="gap-gutter mt-4 flex items-center">
-          <li><a href="/styleguide" class="nav-link">Default</a></li>
+          <li><a href="/styleguide/" class="nav-link">Default</a></li>
           <li>
-            <a href="/styleguide" class="nav-link" aria-current="page">
+            <a href="/styleguide/" class="nav-link" aria-current="page">
               Current
             </a>
           </li>
@@ -406,7 +406,7 @@ const gridDemo = [
           <code>prefers-reduced-motion</code> the global guard collapses that
           transition and the link simply doesn't move.
         </p>
-        <a href="/styleguide" class="link-rule mt-4">All work</a>
+        <a href="/styleguide/" class="link-rule mt-4">All work</a>
       </div>
 
       <div class="mt-block">
@@ -534,7 +534,7 @@ const gridDemo = [
         </p>
 
         <div class="mt-4 grid gap-block sm:grid-cols-2">
-          <a href="/styleguide" class="gallery-item">
+          <a href="/styleguide/" class="gallery-item">
             <Media
               src={k1Kitchen}
               alt="Show kitchen with red dining chairs at a white table on a timber floor"

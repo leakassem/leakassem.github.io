@@ -4,17 +4,17 @@
   Header and footer both read this list, so adding a route — or reordering one —
   is a single edit rather than two that can drift apart.
 
-  `/about` and `/contact` are placeholder pages until step 8 builds them. They
-  exist because a nav link that 404s is worse than a thin page, and because the
-  keyboard and reduced-motion checks in step 4b need somewhere to navigate to.
+  Hrefs carry a trailing slash: that is the URL GitHub Pages actually serves,
+  and the slashless form only 301s to it. See `trailingSlash` in
+  `astro.config.mjs`.
 */
 export const NAV = [
-  { href: '/work', label: 'Work' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/work/', label: 'Work' },
+  { href: '/about/', label: 'About' },
+  { href: '/contact/', label: 'Contact' },
 ] as const;
 
-/** Astro's built output carries a trailing slash where the dev server doesn't. */
+/** Compares routes with or without their trailing slash. */
 function normalise(pathname: string): string {
   return pathname.replace(/\/+$/, '') || '/';
 }

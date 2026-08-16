@@ -20,6 +20,7 @@ import {
   typeLabel,
   type Project,
 } from '../../lib/projects';
+import { socialImageFor } from '../../lib/social';
 
 /*
   One project. This template renders all 17 — nothing here is per-project, and
@@ -62,6 +63,9 @@ const next = await nextProject(project);
 const { Content } = await render(project);
 const hasBody = Boolean(project.body?.trim());
 
+// A link to a project should preview that project, not the site card.
+const card = await socialImageFor(project);
+
 /*
   The metadata block, her sheets' PROJECT DETAILS. Rows whose fact the brief
   never states are absent rather than filled with a guess — which is why this is
@@ -82,6 +86,7 @@ const details = [
   description={`${typeLabel(project.data.type)} interior in ${placeOf(project)}${
     areaLabel(project) ? `, ${areaLabel(project)}` : ''
   } — by Lea Kassem.`}
+  image={card}
 >
   <!-- ------------------------------------------------------------ project -->
   <Section label="Project" divider>
@@ -267,7 +272,7 @@ const details = [
           Next project
         </h2>
 
-        <a href="/work" class="link-rule" data-reveal>All work</a>
+        <a href="/work/" class="link-rule" data-reveal>All work</a>
       </div>
 
       <div class="max-w-text mt-section">

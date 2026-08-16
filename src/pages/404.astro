@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/Container.astro';
+import Section from '../components/Section.astro';
+import { NAV } from '../lib/nav';
+import { getProjects } from '../lib/projects';
+
+/*
+  The page GitHub Pages serves for anything it can't find — Astro builds this
+  one to `dist/404.html` rather than `dist/404/index.html`, which is the
+  filename Pages looks for.
+
+  Two things it has to do: say plainly that the page is gone, and put the whole
+  site one click away. The routes come from `NAV` so this can't list a route
+  the header doesn't have, and the project count is counted rather than typed.
+
+  `noindex` because this page is served at whatever URL was mistyped, and a
+  search engine that indexed it would have a "Page not found" result for a real
+  address.
+*/
+
+const projects = await getProjects();
+---
+
+<BaseLayout
+  title="Page not found — Lea Kassem"
+  description="That page doesn't exist. The work, the CV and the contact address are all one click from here."
+  noindex
+>
+  <Section tone="paper" label="Not found" divider>
+    <Container>
+      <p class="label text-muted" data-reveal>Error 404</p>
+
+      <h1 class="font-display text-headline mt-4" data-reveal="heading">
+        This page doesn't exist
+      </h1>
+
+      <p class="text-subhead text-muted max-w-text mt-6" data-reveal>
+        The address may have changed, or it may never have been one. All {
+          projects.length
+        } projects are in the index, and everything else is a click away.
+      </p>
+
+      <!-- Tighter between rows than across them: at 375px these wrap to a 2×2,
+           and a full block of vertical gap reads as four separate things. -->
+      <div class="gap-x-block mt-block flex flex-wrap gap-y-6" data-reveal>
+        <a href="/" class="link-rule">Home</a>
+        {NAV.map((item) => <a href={item.href} class="link-rule">{item.label}</a>)}
+      </div>
+    </Container>
+  </Section>
+</BaseLayout>

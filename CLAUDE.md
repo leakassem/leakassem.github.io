@@ -69,8 +69,30 @@ wait on scroll — so with motion on, a full shot photographs half the page at
 `opacity: 0` and implies a bug that isn't there.
 
 `--all` is the one that covers the 17 project pages; the default four routes
-don't. `/styleguide` is only in `--all` too, which is why an overflow that had
-been in it since step 2 wasn't found until step 7.
+don't. `/styleguide` and `/404.html` are only in `--all` too, which is why an
+overflow that had been in it since step 2 wasn't found until step 7.
+
+Two generators produce the images that aren't part of a page, and both commit
+their output because a crawler or an OS fetches it by a fixed name:
+
+```bash
+node scripts/make-og.mjs      # public/og/card.jpg — the social card, 1200×630
+node scripts/make-icons.mjs   # public/apple-touch-icon.png from favicon.svg
+```
+
+Re-run `make-og.mjs` if the identity or the lead photograph changes, and
+`make-icons.mjs` if the favicon does. `make-og.mjs` renders the card in Chrome
+so it is set in the real typeface with the real tokens; finding a browser and
+opening a page is `scripts/lib/chrome.mjs`, which `shoot.mjs` shares.
+
+Lighthouse is not a dependency — run it through npx against the preview server:
+
+```bash
+npx -y lighthouse http://localhost:4321/ --quiet \
+  --chrome-flags="--headless=new --disable-gpu" \
+  --output=json --output-path=.shots/lh/home.json \
+  --only-categories=performance,accessibility,best-practices,seo
+```
 
 **In Git Bash, prefix a route argument with `MSYS_NO_PATHCONV=1`** — otherwise
 `/work` is rewritten to `C:/Program Files/Git/work` before Node sees it, the
@@ -87,9 +109,12 @@ stays live.
 `gh` is **not** installed on this machine, so anything needing the GitHub API is
 a browser step for the user. Don't propose installing it.
 
-**`public/robots.txt` currently disallows every crawler** while the site is
-unfinished. That is deliberate — see open item 13 in `work.md`. Do not remove it
-as tidy-up; step 9 replaces it.
+**`public/robots.txt` allows everything except `/styleguide/`** since step 9,
+and points at `/sitemap.xml`. It was a disallow-all placeholder while the site
+was being built; that is gone. If a page should stay out of search, give it
+`noindex` in `BaseLayout` rather than adding a `Disallow` — a disallowed page
+can still be indexed from an inbound link, and `BaseLayout` also drops its
+`canonical` and `og:url` when `noindex` is set.
 
 **`[glob-loader] Duplicate id "…"` is a stale cache, not a duplicate file.**
 Astro's content store persists in `.astro/`, and editing a project markdown file
@@ -122,6 +147,12 @@ adding anything visual, and update it when the system changes.
 - **Tokens live in `src/styles/global.css`.** Colour, type scale, spacing,
   measures and easings are all there. A page needing a value that isn't a token
   should get a new token, not a hard-coded number.
+- **`--color-muted` is at the contrast floor.** It has to clear 4.5:1 against
+  the *ground* (`#e8e8e8`), not just against paper, because every vertical
+  label, the nav and the footer are muted text on the grey. `#666666` is
+  4.69:1 there; anything lighter than about `#686868` fails. So muted text can
+  never be dimmed further with `opacity` on the ground — that is what took the
+  filter chips' counts to 2.29:1 until step 9.
 - **Layout primitives** in `src/components/`: `Section` (vertical rhythm, ground
   tone, and the signature left rule via its `label` prop), `Container`
   (horizontal bound and gutters), `Grid` (columns), `Media` (every picture),
@@ -186,6 +217,15 @@ adding anything visual, and update it when the system changes.
   script in `BaseLayout` adds. With JS off, nothing is ever hidden; if the
   motion bundle fails, a timer strips the class. Never hide a reveal target
   outside that gate.
+- **`BaseLayout` owns every page's metadata too** — canonical, Open Graph,
+  Twitter card, theme colour, the icons and the font preload. A page passes
+  `title`, `description`, optionally `noindex`, and optionally an `image`; it
+  never writes a `<meta>` of its own. The card it shows comes from
+  `src/lib/social.ts`: `SITE_CARD` is the composed card in `public/og/`, and
+  `socialImageFor(project)` crops that project's hero to 1200×630 at build
+  time, so a shared project link previews the project. `/sitemap.xml` is a
+  route (`src/pages/sitemap.xml.ts`) built from `NAV` and `hrefOf()`, so it
+  cannot list a URL the site doesn't link to or miss one it does.
 - **`BaseLayout` owns the page landmarks** — `SiteHeader`, `<main id="main">`
   and `SiteFooter`, plus the skip link. A page supplies the *content* of main,
   never the element, so no page can ship without its landmarks or without a
@@ -229,8 +269,13 @@ adding anything visual, and update it when the system changes.
   cannot resize images, so every responsive variant is generated at build time —
   `Media` is the one place deciding which. It always needs `sizes`; without it
   the browser assumes 100vw and pulls the largest variant for a thumbnail.
-- Internal links: use root-relative paths (`/work/az-triplex`). If the site ever
-  moves to a subpath, that becomes one config change plus a find/replace.
+- Internal links: root-relative **with a trailing slash** (`/work/az-triplex/`).
+  That is the URL GitHub Pages serves; the slashless form only 301s to it, so
+  writing it costs every visitor a redirect. `trailingSlash: 'always'` in
+  `astro.config.mjs` makes `astro dev` 404 a slashless link rather than serving
+  it, which is how the next one gets caught (`astro preview` is lenient, so a
+  local preview won't tell you). Nav hrefs come from `src/lib/nav.ts` and
+  project hrefs from `hrefOf()`, so most of this is two files.
 - Every image needs meaningful `alt` text describing the space, not the filename.
 - Prefer editing an existing component over adding a near-duplicate one.
 

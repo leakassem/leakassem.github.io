@@ -45,7 +45,14 @@
   --color-paper: #ffffff;
   --color-ground: #e8e8e8;
   --color-ink: #0a0a0a;
-  --color-muted: #6b6b6b;
+  /*
+    Muted has to clear 4.5:1 against the *ground*, not just against paper —
+    every vertical label, the nav and the footer are muted text on the grey.
+    The step 2 value (#6b6b6b) cleared paper at 5.1:1 and missed the ground at
+    4.34:1, which step 9's audit caught. #666666 is 4.69:1 on ground and 5.74:1
+    on paper. Anything lighter than about #686868 fails the ground.
+  */
+  --color-muted: #666666;
 
   /* The single black hairline. `soft` is for dividers that shouldn't shout. */
   --color-hairline: #0a0a0a;
@@ -588,8 +595,18 @@
     outline-offset: 3px;
   }
 
+  /*
+    The count is quieter than its label only where there is contrast to spend.
+    Muted sits at the 4.5:1 floor against the ground (see --color-muted), so
+    dimming it there took the count to 2.29:1 — which is what step 9's audit
+    found. On a checked chip the text is paper on ink and 0.6 still clears 7:1,
+    so the distinction survives where it can be afforded.
+  */
   .chip-count {
     font-variant-numeric: tabular-nums;
+  }
+
+  .filter-input:checked + .chip .chip-count {
     opacity: 0.6;
   }
 
