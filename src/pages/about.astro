@@ -1,33 +1,283 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Container from '../components/Container.astro';
+import Grid from '../components/Grid.astro';
+import Media from '../components/Media.astro';
 import Section from '../components/Section.astro';
+import {
+  EDUCATION,
+  EXPERIENCE,
+  LANGUAGES,
+  SKILLS,
+  SOFTWARE,
+  STAGES,
+  periodOf,
+} from '../lib/cv';
+import { getProjects } from '../lib/projects';
 
 /*
-  Placeholder. The real page is step 8 in work.md — bio, experience timeline,
-  skills, languages and education, all of it already written out in
-  docs/BRIEF.md §1.
+  About — her CV as a page (docs/BRIEF.md §1).
 
-  It exists because step 4b's header links here, and a nav link that 404s is
-  worse than a thin page. Marked noindex for the same reason: a placeholder in
-  a search index is worse still.
+  Everything printed here comes out of `src/lib/cv.ts`, which is the one place
+  holding it. The year span a project page prints beside a studio name is
+  derived from these same experience entries, so the timeline below and the
+  "Studio" row on /work/<slug> cannot disagree about when she was where.
+
+  Nothing here is editorial: the bio is the CV's own scope statement, the six
+  stages are the CV's own words in the CV's own order, and the numbering is
+  presentation. Where the brief states no fact there is no row — which is why
+  the second education entry carries no place.
 */
+
+/*
+  One photograph, because a page of CV type with no image on an interior
+  architecture site argues against itself.
+
+  B11 apartment's hero: at 1306px the calmest and most composed crop on the
+  site after 3B apartment's, and 3B already leads the home page's first screen.
+  On /work this same picture is one card among seventeen and on the home page
+  one of six, so it is not carrying another page's opening — which is the
+  repetition the home lead was chosen to avoid.
+
+  Read back through the collection by slug rather than imported out of
+  src/assets, so it keeps the alt text written alongside it and swaps with the
+  rest of that project's images when Lea's originals land (open item 1).
+
+  Deliberately no `transitionName`: /work gives this photograph one on its
+  card, and a second element carrying that name here would make navigating
+  from the index morph a project card into the About page's picture.
+*/
+const PORTRAIT = 'b11-apartment';
+
+const projects = await getProjects();
+const portrait = projects.find((project) => project.id === PORTRAIT);
+
+if (!portrait?.data.hero) {
+  throw new Error(`about page: no hero image on "${PORTRAIT}" to illustrate with`);
+}
+
+const portraitImage = portrait.data.hero;
 ---
 
 <BaseLayout
   title="About — Lea Kassem"
-  description="About Lea Kassem, Senior Interior Architect."
-  noindex
+  description="Lea Kassem is an interior architect in Beirut with over six years delivering interiors across Europe, the UAE, Qatar and Lebanon. Experience, skills and education."
 >
-  <Section tone="paper" label="About">
+  <!-- -------------------------------------------------------------- intro -->
+  <Section tone="paper" label="About" divider>
     <Container>
-      <h1 class="font-display text-headline" data-reveal="heading">About</h1>
+      <Grid cols={12} gap="default">
+        <div class="col-span-4 md:col-span-5">
+          <p class="label text-muted" data-reveal>Beirut, Lebanon</p>
 
-      <p class="text-subhead text-muted max-w-text mt-8" data-reveal>
-        Placeholder. The bio, experience timeline, skills, languages and
-        education are written in step 8, from the material in
-        <code>docs/BRIEF.md</code> §1.
-      </p>
+          <h1 class="font-display text-headline mt-4" data-reveal="heading">
+            Lea Kassem
+          </h1>
+
+          <p class="label text-muted mt-6" data-reveal>Interior Architect</p>
+
+          <div class="max-w-text mt-block" data-reveal>
+            <p class="text-subhead">
+              Over six years delivering residential and commercial interiors
+              across Europe, the UAE, Qatar and Lebanon.
+            </p>
+
+            <p class="text-body text-muted mt-6">
+              She routinely runs five or more concurrent projects end to end,
+              coordinating contractors, joinery, electrical and mechanical
+              teams from the first layout through to delivery on site.
+            </p>
+          </div>
+        </div>
+
+        <!--
+          Above the fold, so no entrance reveal — there is no entrance to play,
+          and the same reasoning the detail hero and the home page's lead
+          photograph were settled on.
+        -->
+        <div class="col-span-4 md:col-span-7">
+          <Media
+            src={portraitImage.src}
+            alt={portraitImage.alt}
+            ratio="2/1"
+            sizes="(min-width: 90rem) 47rem, (min-width: 768px) 55vw, 100vw"
+            priority
+            reveal={false}
+          />
+        </div>
+      </Grid>
+    </Container>
+  </Section>
+
+  <!-- ----------------------------------------------------------- practice -->
+  <Section tone="ground" label="Practice" divider>
+    <Container>
+      <Grid cols={12} gap="default">
+        <h2
+          class="font-display text-headline col-span-4 md:col-span-5"
+          data-reveal="heading"
+        >
+          Project stages
+        </h2>
+
+        <p class="text-subhead max-w-text col-span-4 md:col-span-6 md:col-start-7" data-reveal>
+          A project runs end to end rather than stopping at a drawing set. The
+          six stages below are the whole of it, and she carries a project
+          through all of them.
+        </p>
+      </Grid>
+
+      <Grid cols={3} gap="default" stagger as="ol" class="mt-section">
+        {
+          STAGES.map((stage, index) => (
+            <li class="border-hairline-soft border-t pt-5">
+              <p class="label text-muted">
+                {String(index + 1).padStart(2, '0')}
+              </p>
+              <p class="font-display text-title mt-3">{stage}</p>
+            </li>
+          ))
+        }
+      </Grid>
+    </Container>
+  </Section>
+
+  <!-- --------------------------------------------------------- experience -->
+  <Section tone="paper" label="Experience" divider>
+    <Container>
+      <Grid cols={12} gap="default">
+        <h2
+          class="font-display text-headline col-span-4 md:col-span-4"
+          data-reveal="heading"
+        >
+          Experience
+        </h2>
+
+        <!--
+          `.rule-list-split` puts the dates beside the role once the column is
+          wide enough to read as two, and stacks them below 30rem — the same
+          rows the project metadata block is built from.
+        -->
+        <ol
+          class="rule-list rule-list-split col-span-4 md:col-span-7 md:col-start-6"
+          data-reveal="grid"
+        >
+          {
+            EXPERIENCE.map((role) => (
+              <li>
+                <p class="label text-muted">{periodOf(role)}</p>
+
+                <div>
+                  <p class="text-subhead">{role.title}</p>
+                  <p class="text-small text-muted mt-1">
+                    {role.organisation} · {role.where}
+                  </p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </Grid>
+    </Container>
+  </Section>
+
+  <!-- ------------------------------------------------------------- skills -->
+  <Section tone="ground" label="Skills" divider>
+    <Container>
+      <h2 class="font-display text-headline" data-reveal="heading">
+        Skills &amp; software
+      </h2>
+
+      <Grid cols={3} gap="default" stagger class="mt-section">
+        <div>
+          <h3 class="label text-muted border-hairline-soft border-t pt-5">
+            Skills
+          </h3>
+          <ul class="rule-list mt-4">
+            {SKILLS.map((skill) => <li class="text-small">{skill}</li>)}
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="label text-muted border-hairline-soft border-t pt-5">
+            Software
+          </h3>
+          <ul class="rule-list mt-4">
+            {SOFTWARE.map((tool) => <li class="text-small">{tool}</li>)}
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="label text-muted border-hairline-soft border-t pt-5">
+            Languages
+          </h3>
+          <ul class="rule-list rule-list-split mt-4">
+            {
+              LANGUAGES.map((language) => (
+                <li>
+                  <span class="text-small">{language.name}</span>
+                  <span class="text-small text-muted">{language.level}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </Grid>
+    </Container>
+  </Section>
+
+  <!-- ---------------------------------------------------------- education -->
+  <Section tone="paper" label="Education" divider>
+    <Container>
+      <Grid cols={12} gap="default">
+        <h2
+          class="font-display text-headline col-span-4 md:col-span-4"
+          data-reveal="heading"
+        >
+          Education
+        </h2>
+
+        <ol
+          class="rule-list rule-list-split col-span-4 md:col-span-7 md:col-start-6"
+          data-reveal="grid"
+        >
+          {
+            EDUCATION.map((qualification) => (
+              <li>
+                <p class="label text-muted">{qualification.years}</p>
+
+                <div>
+                  <p class="text-subhead">{qualification.award}</p>
+                  <p class="text-small text-muted mt-1">
+                    {[qualification.institution, qualification.where]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </Grid>
+    </Container>
+  </Section>
+
+  <!-- ------------------------------------------------------------ contact -->
+  <!-- The address itself is /contact's, assembled in JS. This band links. -->
+  <Section tone="ground" label="Contact" divider>
+    <Container>
+      <div class="gap-block flex flex-wrap items-end justify-between">
+        <div>
+          <h2 class="font-display text-headline" data-reveal="heading">
+            Get in touch
+          </h2>
+          <p class="text-subhead text-muted max-w-text mt-6" data-reveal>
+            Project enquiries are welcome by email.
+          </p>
+        </div>
+
+        <a href="/contact" class="link-rule" data-reveal>Contact</a>
+      </div>
     </Container>
   </Section>
 </BaseLayout>

@@ -5,10 +5,13 @@
  * builds its zod enums from these arrays, so a typo in a project's frontmatter
  * fails the build rather than quietly creating an 18th "villas" filter.
  *
- * Deliberately free of imports. `content.config.ts` is loaded in its own
- * context, so anything it reaches for must not drag `astro:content` in with
- * it — the helpers that do live in `src/lib/projects.ts`.
+ * Reaches for nothing but `./cv`, which is import-free for the same reason
+ * this module is: `content.config.ts` is loaded in its own context, so
+ * anything it reaches for must not drag `astro:content` in with it — the
+ * helpers that do live in `src/lib/projects.ts`.
  */
+
+import { yearsAt } from './cv';
 
 /* --------------------------------------------------------------------- type */
 
@@ -79,8 +82,14 @@ export const STUDIOS = ['Step Into Detail', 'Design in Frame'] as const;
 
 export type Studio = (typeof STUDIOS)[number];
 
-/** From the CV (`docs/BRIEF.md` §1). Shown alongside the studio name. */
+/**
+ * Shown alongside the studio name on a project page.
+ *
+ * Derived from the experience timeline in `./cv` rather than written out, so
+ * the years a project page prints and the dates `/about` prints are the same
+ * fact. Correcting a date is one edit, in the CV.
+ */
 export const STUDIO_PERIODS: Record<Studio, string> = {
-  'Step Into Detail': '2022–2025',
-  'Design in Frame': '2020–2022',
+  'Step Into Detail': yearsAt('Step Into Detail'),
+  'Design in Frame': yearsAt('Design in Frame'),
 };

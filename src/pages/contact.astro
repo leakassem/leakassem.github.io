@@ -1,33 +1,103 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Container from '../components/Container.astro';
+import EmailLink from '../components/EmailLink.astro';
+import Grid from '../components/Grid.astro';
 import Section from '../components/Section.astro';
+import { LANGUAGES } from '../lib/cv';
+import { facetsOf, getProjects } from '../lib/projects';
 
 /*
-  Placeholder. The real page is step 8 in work.md.
+  Contact. Email only — no phone number, no address, no social links, which is
+  a decision by the site owner and hard rule 2 in CLAUDE.md.
 
-  It exists because step 4b's header and footer both link here. Deliberately
-  carries no address: contact is email only, which email is still open item 2,
-  and the address has to be assembled in JS at runtime rather than sitting in
-  the HTML — see the hard rules in CLAUDE.md. Nothing here should be copied
-  forward except the shape.
+  The address is never in this file and never in the built HTML: `EmailLink`
+  ships an encoded blob and assembles the `mailto:` in the browser, with the
+  address spelled out inside <noscript> so a reader without JavaScript is not
+  left with no way to reach her. See src/lib/contact.ts.
+
+  The second band is there because a contact page that is one line on a tall
+  screen looks like an oversight. Everything in it is a fact already on the
+  site — the countries are counted from the project data, so the page can't
+  claim a reach the work index doesn't show.
 */
+
+const projects = await getProjects();
+
+// Through `facetsOf` rather than a Set of countries, so the order is the
+// vocabulary's deliberate one and matches the chips on /work.
+const countries = facetsOf(projects).location.map((facet) => facet.label);
 ---
 
 <BaseLayout
   title="Contact — Lea Kassem"
-  description="Get in touch with Lea Kassem, Senior Interior Architect."
-  noindex
+  description="Project enquiries for Lea Kassem, interior architect in Beirut, are welcome by email."
 >
-  <Section tone="paper" label="Contact">
+  <!-- ------------------------------------------------------------ contact -->
+  <Section tone="paper" label="Contact" divider>
     <Container>
-      <h1 class="font-display text-headline" data-reveal="heading">Contact</h1>
+      <Grid cols={12} gap="default">
+        <div class="col-span-4 md:col-span-5">
+          <h1 class="font-display text-headline" data-reveal="heading">
+            Get in touch
+          </h1>
 
-      <p class="text-subhead text-muted max-w-text mt-8" data-reveal>
-        Placeholder. The email address is added in step 8, assembled in the
-        browser rather than written into the page, with a fallback for readers
-        without JavaScript.
-      </p>
+          <p class="text-subhead text-muted max-w-text mt-6" data-reveal>
+            Project enquiries, collaborations and availability — email is the
+            best way to reach her.
+          </p>
+        </div>
+
+        <div class="col-span-4 md:col-span-6 md:col-start-7" data-reveal>
+          <p class="label text-muted">Email</p>
+
+          <p class="mt-4">
+            <EmailLink class="font-display text-title" />
+          </p>
+        </div>
+      </Grid>
+    </Container>
+  </Section>
+
+  <!-- ------------------------------------------------------------ details -->
+  <Section tone="ground" label="Details" divider>
+    <Container>
+      <Grid cols={3} gap="default" stagger>
+        <div class="border-hairline-soft border-t pt-5">
+          <p class="label text-muted">Based in</p>
+          <p class="font-display text-title mt-3">Beirut, Lebanon</p>
+        </div>
+
+        <div class="border-hairline-soft border-t pt-5">
+          <p class="label text-muted">Working across</p>
+          <p class="font-display text-title mt-3">{countries.join(', ')}</p>
+        </div>
+
+        <div class="border-hairline-soft border-t pt-5">
+          <p class="label text-muted">Languages</p>
+          <p class="font-display text-title mt-3">
+            {LANGUAGES.map((language) => language.name).join(', ')}
+          </p>
+        </div>
+      </Grid>
+    </Container>
+  </Section>
+
+  <!-- --------------------------------------------------------------- work -->
+  <Section tone="paper" label="Work" divider>
+    <Container>
+      <div class="gap-block flex flex-wrap items-end justify-between">
+        <div>
+          <h2 class="font-display text-headline" data-reveal="heading">
+            The work
+          </h2>
+          <p class="text-subhead text-muted max-w-text mt-6" data-reveal>
+            All {projects.length} projects, filterable by type, location and status.
+          </p>
+        </div>
+
+        <a href="/work" class="link-rule" data-reveal>All work</a>
+      </div>
     </Container>
   </Section>
 </BaseLayout>

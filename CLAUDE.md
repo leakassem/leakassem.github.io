@@ -129,10 +129,18 @@ adding anything visual, and update it when the system changes.
   vertical space, Container owns horizontal — that split is what lets a band run
   full-bleed while its text stays measured.
 - **Shared pieces built on those primitives**: `ProjectCard` (how a project
-  introduces itself — home and `/work` both render it, so change it once), the
-  filter chips (`.filter-input` + `.chip`), and the component classes
-  `.link-rule` (the site's only button-like link) and `.project-card`. All are
-  on `/styleguide` under **Components**.
+  introduces itself — home and `/work` both render it, so change it once),
+  `EmailLink` (the contact address, below), the filter chips (`.filter-input` +
+  `.chip`), and the component classes `.link-rule` (the site's only button-like
+  link) and `.project-card`. All are on `/styleguide` under **Components**.
+- **`EmailLink` is the only way the email reaches a page.** It ships the
+  address reversed and base64-encoded in a data attribute and assembles the
+  `mailto:` in the browser, so no built page carries an address a regex can
+  find. Until the script runs the anchor has **no `href`**, which is why every
+  link affordance in `.email-link` is scoped to `[href]`: with JS off the
+  `<noscript>` fallback shows `lea_kassem [at] hotmail [dot] com`, and text
+  that can't be clicked must not look clickable. Don't give it a placeholder
+  `href` and don't move the address into markup.
 - **`/work` filters in CSS, not JavaScript.** Each facet is a radio group, and
   `src/pages/work/index.astro` generates one rule per option — plus the
   selectors for the combinations that match nothing — from the project data
@@ -199,6 +207,16 @@ adding anything visual, and update it when the system changes.
 - **Nothing in a project file is editorial.** Every field traces to
   `docs/BRIEF.md` §4. Where the brief states no fact, the field is absent —
   don't invent completion years, client names or descriptions.
+- **Her CV is `src/lib/cv.ts`** — experience, education, skills, software,
+  languages and the six project stages, all from `docs/BRIEF.md` §1. `/about`
+  renders it, and `STUDIO_PERIODS` in `facets.ts` derives the years a project
+  page prints beside a studio name from those same entries via `yearsAt()`. So
+  correcting a date is one edit, and the timeline can't disagree with a project
+  page. `cv.ts` must stay import-free: `facets.ts` reads it, and that is
+  reached from `content.config.ts`.
+- **The email address is `src/lib/contact.ts`**, which deliberately does not
+  export the raw string — only the encoded and spelled-out forms. Changing the
+  address is one edit there; see `EmailLink` above.
 - **Anything derivable is derived, not stored** — country from city, a
   project's area and role list from its sections. Adding a field that can
   contradict another is the thing this model exists to prevent.

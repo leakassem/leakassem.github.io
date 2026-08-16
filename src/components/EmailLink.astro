@@ -1,0 +1,60 @@
+---
+import { EMAIL_ENCODED, EMAIL_SPELLED } from '../lib/contact';
+
+/**
+ * Lea's email address, assembled in the browser.
+ *
+ * Hard rule 2 in `CLAUDE.md`: the address may never sit in the built HTML as
+ * plain text. So this ships an encoded blob and the script below turns it into
+ * a real `mailto:` link.
+ *
+ * Until that happens the anchor has no `href`, which is what the `[href]`
+ * scoping in `.email-link` is for — with JavaScript off this is not a dead
+ * control that looks clickable and isn't, it is the address written out for a
+ * reader to copy. A `mailto:` cannot be the JS-off path, because the address
+ * would have to be in the markup to build one.
+ *
+ * The address itself lives in `src/lib/contact.ts`, so changing it is one edit.
+ */
+interface Props {
+  /** Type utilities for the address — it is set large on `/contact`. */
+  class?: string;
+}
+
+const { class: className = '' }: Props = Astro.props;
+---
+
+<a class:list={['email-link', className]} data-email={EMAIL_ENCODED}>
+  <noscript>{EMAIL_SPELLED}</noscript>
+</a>
+
+<script>
+  /*
+    Turns the encoded attribute back into an address and a mailto link.
+
+    Runs at module scope and again on `astro:after-swap`: view transitions swap
+    the document without reloading it, and the browser will not re-run a module
+    script it has already run, so without the listener the address would appear
+    on the first page visited and never again. See CLAUDE.md.
+
+    Idempotent — an anchor that already has an href was mounted by an earlier
+    pass, so it is left alone.
+  */
+  function mountEmailLinks() {
+    const links = document.querySelectorAll<HTMLAnchorElement>('a[data-email]');
+
+    for (const link of links) {
+      const encoded = link.dataset.email;
+      if (!encoded || link.href) continue;
+
+      const address = [...atob(encoded)].reverse().join('');
+
+      link.href = `mailto:${address}`;
+      // Replaces the <noscript> fallback, which never rendered here anyway.
+      link.textContent = address;
+    }
+  }
+
+  mountEmailLinks();
+  document.addEventListener('astro:after-swap', mountEmailLinks);
+</script>

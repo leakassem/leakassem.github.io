@@ -12,20 +12,25 @@ To see where things stand: *"where are we"*.
 Every session updates this file before finishing, so it is always the current
 state of the project.
 
-> **Current step: 8 — About & contact** (`todo`). Every project now has its own
-> page and the site navigates as one piece: cards link to `/work/<slug>`, and
-> view transitions carry the hero image from the card into the page it opens.
-> Step 10 was pulled forward and is done: the site is at
+> **Current step: 9 — Polish** (`todo`). Every page in the nav is now real:
+> step 8 built `/about` and `/contact`, so there are no placeholder pages and
+> no stub `noindex` left except `/styleguide`'s. The site is at
 > **https://leakassem.github.io** and every push to `main` redeploys it. A step
 > isn't finished until it's pushed.
+>
+> **Step 9 cannot close while `public/robots.txt` is the disallow-all
+> placeholder** — open item 13. It was right for a site whose home page was a
+> placeholder; it is now the only thing keeping a finished site out of search.
 >
 > **Read the view-transitions notes in `CLAUDE.md` before writing any
 > client-side script.** Since step 7 the whole site swaps documents rather than
 > reloading, which changes three things about page scripts, `history` and the
-> motion gate. Step 7 hit all three; two of them were silent.
+> motion gate. Step 7 hit all three; two of them were silent. Step 8's email
+> link needed the same `astro:after-swap` re-run for the same reason.
 >
-> Step 8's blocking open items are **2** (which email to publish) and **4**
-> (residential-only vs the CV's claim of commercial work). Both need Lea.
+> Step 9 has no blocking open items. Note before the alt-text and a11y audits:
+> the email link is deliberately an anchor **without** an `href` until JS runs
+> — that is not a bug to fix, it is what the JS-off fallback rests on.
 
 ---
 
@@ -88,6 +93,12 @@ state of the project.
 | 2026-08-15 | Reduced motion must disable **`::view-transition-*` explicitly** | The global guard is `*, *::before, *::after`, and a view transition's pseudo-elements are descendants of nothing, so `*` never reaches them. Without the extra rule both the page cross-fade and the hero's move would still run under `prefers-reduced-motion` — the one exception hard rule 5 doesn't allow |
 | 2026-08-15 | `src/pages/work.astro` moved to `src/pages/work/index.astro` | `/work` and `/work/[slug]` are one section and now read as one directory. Astro serves both either way; this is tidiness, and the only cost was import depth |
 | 2026-08-15 | The **studio is surfaced on the detail page**, with its years | It is the one fact `facetsOf()` computes that nothing rendered — step 6 deliberately left it out of the filters as a fourth chip group that wasn't worth the phone screen. A metadata row is where it belongs: useful context, no UI |
+| 2026-08-16 | **Publish `lea_kassem@hotmail.com`** — closes open item 2 | It is the only address on record. Owner's call, asked and answered. It reads dated for a senior portfolio, and swapping it is one line in `src/lib/contact.ts` if Lea ever creates a cleaner one — nothing else in the site knows the address |
+| 2026-08-16 | **The bio keeps the CV's "residential and commercial"** — closes open item 4 | Owner's call, asked and answered, against the recommendation to drop it. The concern stands and is recorded in open item 4: every one of the 17 projects is residential, so a reader who opens `/work` sees no commercial work behind the claim. `/about` describes her career; the home page and the work index still say residential, which is what the portfolio shows |
+| 2026-08-16 | The address is **reversed, then base64**, never plain text in the HTML | Hard rule 2. Reversed as well as encoded because sweeping a page for base64 and decoding candidates is cheap, and plain base64 hands over an address in that one step; reversed first it yields `moc.liamtoh@messak_ael`, which matches no email pattern. This defeats a regex harvester, which is what it is for — nothing client-side can defeat one that runs a browser, and the code says so rather than implying otherwise |
+| 2026-08-16 | The email anchor carries **no `href` until JS assembles one**, and `.email-link` scopes its underline to `[href]` | The JS-off fallback can't be a `mailto:` — building one would put the address in the markup, which is the thing being avoided. So it is the address spelled out in `<noscript>` for a reader to copy. Which means the element is text, not a control, and must not look like one: no underline, no pointer, until it really is a link |
+| 2026-08-16 | **The CV is one file (`src/lib/cv.ts`), and `STUDIO_PERIODS` derives from it** | `facets.ts` had the two studios' year ranges written out, and `/about` was about to write the same dates out again with months on them. Two copies of one fact is what this project's model exists to prevent. `yearsAt()` spans every stint at an organisation, so Design in Frame is 2020–2022 across the internship and the role after it rather than whichever entry was found first. Output is byte-identical on all 17 project pages |
+| 2026-08-16 | **B11 apartment's hero illustrates `/about`** | A CV page with no image, on an interior architecture site, argues against itself. At 1306px it is the calmest crop on the site after 3B apartment's, and 3B already leads the home page's first screen — B11 is one card among six there, so it isn't carrying another page's opening. No `view-transition-name` on it: `/work` gives that same photograph one, and a second element carrying the name would morph a project card into the About page's picture |
 
 ---
 
@@ -96,9 +107,9 @@ state of the project.
 | # | Item | Blocks | Status |
 |---|---|---|---|
 | 1 | **Better images, eventually.** Building with PDF crops for now (see step 4). Ask Lea for her original renders and site photos when convenient — they'd be 2000–4000 px vs the ~600–900 px we can crop. Swap-in should be cheap if step 4 is done right. | nothing — deferred | open |
-| 2 | **Which email to publish.** Only `lea_kassem@hotmail.com` is on record; reads dated for a senior portfolio. Suggest a cleaner address. | Step 8 | open |
-| 3 | **Yafawi Design work.** Portfolio has nothing from her current role (Sep 2025–present, Europe). As-is the site implies she stopped working in Aug 2025. NDA? | Step 5, 6 | open |
-| 4 | **Residential only.** CV claims residential *and* commercial; every sheet is tabbed Residential. Get commercial work or drop the claim. | Step 8 | open |
+| 2 | ~~Which email to publish.~~ Resolved 2026-08-16: `lea_kassem@hotmail.com`, the only address on record. If Lea creates a cleaner one it is one line in `src/lib/contact.ts` — nothing else on the site knows the address. | — | done |
+| 3 | **Yafawi Design work.** Portfolio has nothing from her current role (Sep 2025–present, Europe). Since step 8 this is **published rather than implied**: `/about`'s timeline prints "Yafawi Design · Europe, Sep 2025 – present" and the bio says "across Europe", while `/work` shows nothing from it. So the gap is now visible to a reader rather than only to us. Either work from that role lands (NDA permitting) or the timeline is the only place Europe appears — which is honest, but worth Lea's decision. | nothing — the pages ship | open |
+| 4 | **Residential only — claim published anyway.** Decided 2026-08-16: `/about` keeps the CV's "residential and commercial", against the recommendation to drop it. The gap it was raised about is unchanged: all 17 projects are residential, so a reader who opens `/work` finds nothing commercial behind the claim. Closing it needs commercial work from Lea (open item 1 would carry the images); until then the claim rests on the CV alone. | nothing — owner's decision, recorded | open |
 | 5 | ~~Where the repo lives.~~ Resolved 2026-08-14: Lea's own account. | — | done |
 | 6 | **3D designer credits.** Several sheets say "collaborated with the 3D designer". Check whether anyone needs crediting. Since step 7 this line is **printed on the project pages** — it's a role bullet, rendered verbatim as the sheet states it, on 3B, Qatar villa and the others that carry it. So the question is now visible on the live site rather than sitting in the data: either a name goes alongside it or it stays as the sheet has it. | nothing — the bullet is the sheet's own wording | open |
 | 7 | ~~OneDrive syncing node_modules.~~ Closed 2026-08-14: path is local, not synced. The one `EPERM` was a transient lock and hasn't recurred. | — | done |
@@ -764,7 +775,7 @@ hero actually travelling.
 
 ---
 
-### 8. About & contact — `todo`
+### 8. About & contact — `done`
 
 > Check open items 2 and 4 first.
 
@@ -779,7 +790,79 @@ HTML, with a sensible non-JS fallback.
 email or phone number anywhere. Scope that grep to the pages: the GSAP bundle
 carries `jack@greensock.com` in its licence header and always has.
 
-**Outcome:** _(fill in)_
+**Outcome:** both pages are real, the site has no placeholders left in its nav,
+and the address is reachable without ever appearing in the HTML.
+
+- **`src/lib/cv.ts`** — her CV, from `docs/BRIEF.md` §1, in the one place that
+  holds it: five experience entries, two qualifications, skills, software,
+  languages, and the six project stages. `periodOf()` prints a role's dates as
+  the CV does ("Aug – Sep 2020" where both ends share a year), and `yearsAt()`
+  spans every stint at an organisation.
+- **`STUDIO_PERIODS` is now derived from it.** The years a project page prints
+  beside a studio name were written out in `facets.ts` and the same dates were
+  about to be written out again on `/about` — two copies of one fact. They come
+  through `yearsAt()` now, so a correction is one edit. Output is unchanged:
+  all 17 project pages still read *Design in Frame · 2020–2022* (12) and *Step
+  Into Detail · 2022–2025* (5).
+- **`/about`** — six bands: the bio against B11 apartment's hero, the six
+  project stages numbered, the experience timeline, skills / software /
+  languages, education, and a contact link. Everything printed comes out of
+  `cv.ts`; the timeline and the education list are `.rule-list-split`, the same
+  rows the project metadata block is built from.
+- **`/contact`** — the address set large, then the facts a reader would want
+  next (based in, working across, languages) and a link to the work. The
+  countries come through `facetsOf()`, so the page can't claim a reach the work
+  index doesn't show.
+- **`src/lib/contact.ts` + `src/components/EmailLink.astro`** — the address,
+  reversed then base64-encoded, assembled into a `mailto:` in the browser. The
+  raw string is deliberately not exported. Reversed *as well as* encoded
+  because a base64 sweep is cheap and plain base64 gives an address up in one
+  step; reversed first, that step yields `moc.liamtoh@messak_ael`, which
+  matches no email pattern.
+- **The anchor has no `href` until the script runs**, so `.email-link` scopes
+  its underline to `[href]`. With JavaScript off the reader gets
+  `lea_kassem [at] hotmail [dot] com` out of `<noscript>` as plain text —
+  copyable, and not posing as a control it can't be. A `mailto:` cannot be the
+  JS-off path, because building one would put the address in the markup.
+- **New in the design system:** `.email-link`, rendered on `/styleguide` under
+  **Components** with the real component.
+
+**Verified:** `npm run build` — 0 errors, 0 warnings, 0 hints across 27 files;
+22 pages built.
+
+**The privacy gate, three ways.** No file in `dist/` contains
+`lea_kassem@hotmail.com`. No built `.html` matches an email pattern at all. And
+fetching `/contact/`, `/about/`, `/`, `/work/` and `/styleguide/` over the wire
+— what a harvester actually downloads — returns no address and no pattern match
+on any of them. The only email anywhere in `dist/` is `jack@greensock.com` in
+the GSAP licence header, as step 5 predicted. No phone-shaped string, no
+`tel:`, no social handle in any built page. The one readable trace is the
+`<noscript>` fallback, which is the hard rule's own requirement and is not an
+address to a regex.
+
+**Driven in Chrome — 18 checks, all passing.** On a fresh load the link carries
+`mailto:lea_kassem@hotmail.com`, shows the address, reads as a link and is
+underlined. Navigating away to `/about` and back through the real nav — a view
+transition, not a reload — it re-mounts; and again on a second round trip via
+`/work`, which is what would catch a listener that only fires once. It is
+focusable and focus lands on screen. `/styleguide` mounts the same component.
+`/about` has exactly one `h1`, six stages and five experience rows, and the
+periods print as the CV states them.
+
+Measured at 375 / 768 / 1440 on both new pages plus `/styleguide` and the four
+main routes, with JavaScript disabled and under `prefers-reduced-motion` — no
+overflow anywhere, `hidden=0` throughout, every nav tap target 44px.
+`/styleguide` was checked at 375 deliberately: it is the page a component
+addition can break, and the overflow found in step 7 had been there since step
+2.
+
+**A check of mine that was wrong, not the code:** the first browser pass
+asserted no address in `document.documentElement.outerHTML` and failed. That
+serialises the *live* DOM, which by then contains the address — that is the
+feature working. The requirement is about the served bytes, which is what the
+`fetch` scan above measures.
+
+**Not verified:** the animations still haven't been watched *in motion*.
 
 ---
 
@@ -789,7 +872,10 @@ carries `jack@greensock.com` in its licence header and always has.
 - **Replace `public/robots.txt`** — it is a disallow-all placeholder from step 10
   and blocks every crawler. Open item 13. This step cannot close with it in place
 - Meta tags, Open Graph images, sitemap, 404 page, favicon
-- Drop the `noindex` from the pages carrying it as a work-in-progress marker
+- ~~Drop the `noindex` from the pages carrying it as a work-in-progress
+  marker.~~ Done in step 8: `/about` and `/contact` were the last two, and the
+  real pages replaced the stubs without it. `/styleguide` still carries one and
+  should keep it — it is an internal reference, not a work-in-progress marker
 - Keyboard navigation and visible focus states on every interactive element
 - Alt text audit — every image, describing the space not the filename
 - Reduced-motion audit — every animation, nothing left stuck invisible

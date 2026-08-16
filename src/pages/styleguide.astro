@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Container from '../components/Container.astro';
+import EmailLink from '../components/EmailLink.astro';
 import Grid from '../components/Grid.astro';
 import Media from '../components/Media.astro';
 import ProjectCard from '../components/ProjectCard.astro';
@@ -406,6 +407,24 @@ const gridDemo = [
           transition and the link simply doesn't move.
         </p>
         <a href="/styleguide" class="link-rule mt-4">All work</a>
+      </div>
+
+      <div class="mt-block">
+        <p class="label text-muted">Email address — EmailLink.astro + .email-link</p>
+        <p class="text-small text-muted mt-2 max-w-text">
+          The address may never sit in the built HTML as plain text (hard rule
+          2), so the markup ships it reversed and base64-encoded and a script
+          assembles the <code>mailto:</code> in the browser. Until it does, the
+          anchor has no <code>href</code> — which is why the underline is
+          scoped to <code>[href]</code>: with JavaScript off this is the
+          address written out inside <code>&lt;noscript&gt;</code> for a reader
+          to copy, and text should not look clickable.
+          <code>min-height</code> reserves the line so the address arriving
+          can't shift the page under it. Below is the real component.
+        </p>
+        <p class="mt-4">
+          <EmailLink class="font-display text-title" />
+        </p>
       </div>
 
       <div class="mt-block">

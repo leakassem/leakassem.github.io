@@ -308,6 +308,32 @@
     width: 2.75rem;
   }
 
+  /*
+    The contact address — see `components/EmailLink.astro`.
+
+    It is an anchor with no `href` until the script there assembles one out of
+    the encoded blob it carries, so every link affordance is scoped to
+    `[href]`: with JavaScript off this is the address written out as text, and
+    text should not look clickable.
+
+    `min-height` reserves the line so the address arriving can't shift the page
+    under it, and `anywhere` is what keeps a long address inside a 375px
+    column. Type comes from the call site, as it does on `.project-card`.
+  */
+  .email-link {
+    display: inline-block;
+    min-height: 1.15em;
+    color: inherit;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .email-link[href] {
+    text-decoration: underline;
+    text-decoration-thickness: var(--spacing-hair);
+    text-underline-offset: 0.3em;
+  }
+
   /* ------------------------------------------------------------ project card */
 
   /*
